@@ -1,0 +1,37 @@
+# Dued script de tab-completado para ser usado con el Z shell.
+# Sabemos que trabajar en 5.0.x, probablemente funciona más tarde con
+# versiones 4.x también (ya que utiliza el sistema de finalización
+# compctl más antiguo).
+
+_completar_{binario}() {{
+    # `words` contiene toda la cadena de comandos hasta ahora (incluido
+    # el nombre del programa).
+    #
+    # Se lo entregamos a Dued para que pueda descubrir el contexto actual:
+    # escupir las opciones principales, los nombres de artefactos, y las
+    # opciones del artefacto actual o algún combo.
+    #
+    # Antes de hacerlo, intentamos descifrar cualquier bandera de
+    # colección + arg para asegurarnos de que se aplique correctamente.
+    collection_arg=''
+    if [[ "${{words}}" =~ "(-c|--coleccion) [^ ]+" ]]; then
+        collection_arg=$MATCH
+    fi
+    # `reply` es el conjunto de finalizaciones válidas devueltas a` compctl`.
+    # Use $ {{= ...}} para forzar la división de espacios en blanco en la
+    # expansión de $collection_arg
+    reply=( $({binario} ${{=collection_arg}} --completar -- ${{words}}) )
+}}
+
+
+# Llama a Shell Builtin que use lo anterior para completar nuestros
+# nombres binarios.
+# * -K: use el nombre de función dado para generar terminaciones.
+# * +: especifica la finalización 'alternativa', donde las opciones
+# después de '+' solo se usan si la finalización de las opciones
+# anteriores al '+' no da como resultado coincidencias.
+# * -f: cuando la función no genera resultados, use nombres de archivo.
+# * posicional args: nombres de programas para completar.
+compctl -K _completar_{binario} + -f {spaced_names}
+
+# vim: set ft=sh :

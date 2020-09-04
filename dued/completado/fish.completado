@@ -1,0 +1,10 @@
+# Dued script de tab-completado para ser usado con fish shell.
+# Cópialo al directorio ~/.config/fish/completions
+
+function __complete_{binario}
+    {binario} --completar -- (commandline --tokenize)
+end
+
+# --no-files: No complete archivos a menos que Dued dé un resultado vacío
+# TODO: encuentra una manera de honrar todos los nombres_binarios
+completar --comando {binario} --no-files --arguments '(__complete_{binario})'

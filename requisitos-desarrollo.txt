@@ -1,0 +1,13 @@
+# Docs
+# NOTA: el hook (gancho) de sphinx está en requisitos-artefactos.py.txt
+releases>=0.6.1,<2.0
+
+# Pruebas (dependencias explícitas para evitar problema de Travis/pip)
+pytest==4.6.3
+pytest-relaxed==1.1.5
+pytest-cov==2.5.1
+mock==1.0.1
+flake8==3.7.8
+# Cosas necesarias para que nuestro artefactos.py se ejecute
+# (separado para facilitar la CI)
+-r requisitos-artefactos.py.txt

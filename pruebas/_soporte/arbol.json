@@ -1,0 +1,130 @@
+{
+    "nombre": "arbol",
+    "help": null,
+    "artefactos": [
+        {
+            "nombre": "iterminal",
+            "alias": ["termIA"],
+            "help": "Carga REPL con estado y config. de Py."
+        },
+        {
+            "nombre": "prueba",
+            "alias": ["correr-pruebas"],
+            "help": "Corre suite prueba respaldada en args."
+        }
+    ],
+    "default": "prueba",
+    "colecciones": [
+        {
+            "nombre": null,
+            "help": "Artefactos p.compilar cód estático.",
+            "artefactos": [
+                {
+                    "nombre": "all",
+                    "alias": ["todo"],
+                    "help": "Fabrica los artefactos necesarios."
+                },
+                {
+                    "nombre": "c-ext",
+                    "alias": ["ext"],
+                    "help": "Construye nuestra extensión C interna."
+                },
+                {
+                    "nombre": "zap",
+                    "alias": [],
+                    "help": "Una forma majadera de limpiar."
+                }
+            ],
+            "default": "all",
+            "colecciones": [
+                {
+                    "nombre": "docs",
+                    "help": "Artefactos para gestion de doc Sphinx.",
+                    "artefactos": [
+                        {
+                            "nombre": "all",
+                            "alias": [],
+                            "help": "Fabrica todo formatos de docs."
+                        },
+                        {
+                            "nombre": "html",
+                            "alias": [],
+                            "help": "Genera solo salida HTML."
+                        },
+                        {
+                            "nombre": "pdf",
+                            "alias": [],
+                            "help": "Genere solo salida PDF."
+                        }
+                    ],
+                    "default": "all",
+                    "colecciones": []
+                },
+                {
+                    "nombre": "python",
+                    "help": "Artefactos de distribución de PyPI /etc.",
+                    "artefactos": [
+                        {
+                            "nombre": "all",
+                            "alias": [],
+                            "help": "Fabrica todos los paquetes de Python."
+                        },
+                        {
+                            "nombre": "sdist",
+                            "alias": [],
+                            "help": "Construye tar.gz de estilo clásico."
+                        },
+                        {
+                            "nombre": "wheel",
+                            "alias": [],
+                            "help": "Construye una distb. wheel (rueda)."
+                        }
+                    ],
+                    "default": "all",
+                    "colecciones": []
+                }
+            ]
+        },
+        {
+            "nombre": "desplegar",
+            "help": "Cómo desplegar código y configs.",
+            "artefactos": [
+                {
+                    "nombre": "db",
+                    "alias": ["db-servers"],
+                    "help": "Implementar en nuestros DB servers."
+                },
+                {
+                    "nombre": "omnipresente",
+                    "alias": [],
+                    "help": "Implementar en todos los objetivos."
+                },
+                {
+                    "nombre": "web",
+                    "alias": [],
+                    "help": "Actualiza y rebota los servidores web."
+                }
+            ],
+            "default": "omnipresente",
+            "colecciones": []
+        },
+        {
+            "nombre": "provision",
+            "help": "Código de config. del sistema.",
+            "artefactos": [
+                {
+                    "nombre": "db",
+                    "alias": [],
+                    "help": "Ponga en marcha uno o más DB servers."
+                },
+                {
+                    "nombre": "web",
+                    "alias": [],
+                    "help": "Ponga en marcha un Web server."
+                }
+            ],
+            "default": null,
+            "colecciones": []
+        }
+    ]
+}

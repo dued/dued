@@ -1,0 +1,85 @@
+language: python
+sudo: required
+dist: xenial
+cache:
+  directories:
+    - $HOME/.cache/pip
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8-dev"
+  - "pypy"
+  - "pypy3"
+matrix:
+  allow_failures:
+    - python: "3.8-dev"
+# ¿POR QUÉ esto tiene que estar en before_install y no instalarse? o_O
+before_install:
+  # Utilizado por 'regresión inv' (más eficiente / seguro / probable para
+  # exponer problemas reales que en hilos de Python ...)
+  - sudo apt-get -y install parallel
+install:
+  # Por alguna razón, los entornos de compilación de Travis tienen versiones
+  # muy diferentes de pip/setuptools entre versiones menores de Python, y
+  # esto puede causar muchos divertidos casos de empaque de esquina.
+  # Entonces...
+  - pip install -U pip
+  # Setuptools 34+ parece ser menos estable
+  - pip install 'setuptools>33,<34'
+  # Prueba de Sanity de los Pre-requisitos (de nuevo, se asemeja a un
+  # entorno de instalación puro y no dev) p.ej. los 'seis' de la
+  # especificación de engullir nuestros intentos de importar nuestros
+  # 'seis' comercializados.
+  - pip install -r requisitos-artefactos.py.txt
+  - du --lista
+  # Instale los requisitos de desarrollo restantes (corredor de prueba, etc.)
+  - pip install -r requisitos-desarrollo.txt
+  - pip list --format=columns
+  # También cree un venv de intérprete alternativo viable para probar las
+  # compilaciones de paquetes duales
+  # Python 3 es un espacio de nombres muy agradable globalmente. Python 2
+  # está enmascarado por el venv predeterminado de Travis, por lo que
+  # debemos hardcodearlo.
+  - "virtualenv alt_env --python=$([[ $TRAVIS_PYTHON_VERSION == 2* ]] && echo python3 || echo /usr/bin/python)"
+  - alt_env/bin/pip install wheel
+before_script:
+  # Cree 'sudo ususario' con/sudo contraseña y permisos en el homedir de Travis
+  - du travis.make-sudouser
+  # Blacken y flake8 antes de ejecutar cualquier prueba, es un rapido
+  # detector de fallas
+  - du travis.blacken
+  - flake8
+script:
+  # Ejecute el conjunto completo de pruebas + coverage, como el nuevo
+  # usuario con capacidad de sudo
+  - du travis.sudo-coverage
+  # Performance estra "no es factible dentro de pytest sin razón obvia"
+  - du regresion
+  # ¿websites construidos OK? (No en PyPy3, Sphinx es todo "¿quién demonios eres?" = /
+  - "if [[ $TRAVIS_PYTHON_VERSION != 'pypy3' ]]; then du sites; fi"
+  # Doctests sitios web ¿OK? (La misma advertencia que la anterior ...)
+  - "if [[ $TRAVIS_PYTHON_VERSION != 'pypy3' ]]; then du www.doctest; fi"
+  # Nosotros rompimos setup.py?
+  # NOTA: en algún momento del 2019 en travis creció un extraño problema de
+  # EnvironmentError alrededor de la incapacidad de sobrescribir/dirs remotos
+  # __pycache__ ... esto intenta solución alterna
+  - "find . -type d -name __pycache__ | sudo xargs rm -rf"
+  - du travis.prueba-installation --paquete=dued --sanity="du --lista"
+  # Prueba de Compilaciones de distribución, incluidas algunas cosas
+  # basadas en package_data (impresión de script de finalización)
+  - "du travis.prueba-packaging --paquete=dued --sanity='du --lista && du --script-completado zsh' --alt-python=alt_env/bin/python"
+after_success:
+  # Subir datos de coverage a codecov
+  - codecov
+notifications:
+  irc:
+    channels: "irc.freenode.org#dued"
+    template:
+      - "%{repository_name}@%{branch}: %{message} (%{build_url})"
+    on_success: change
+    on_failure: change
+    on_error: change
+  email: false

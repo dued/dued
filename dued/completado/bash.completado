@@ -1,0 +1,37 @@
+# Dued script de tab-completado para ser usado con Bash shell.
+# Sabemos que trabajar en Bash 3.x, no probado en 4.x.
+
+_complete_{binario}() {{
+    local candidates
+
+    # COMP_WORDS contiene toda la cadena de comandos hasta ahora (incluido
+    # el nombre del programa).
+    #
+    # Se lo entregamos a Dued para que pueda descubrir el contexto actual:
+    # escupir las opciones principales, los nombres de artefactos, y las
+    # opciones del artefacto actual o algún combo.
+    candidates=`{binario} --completar -- ${{COMP_WORDS[*]}}`
+
+    # `compgen -W` toma una lista de opciones válidas y una palabra parcial y
+    # escupe posibles coincidencias. Necesario para cualquier completado
+    # parcial de palabras (vs finalizaciones realizadas cuando no hay palabras
+    # parciales presentes).
+    #
+    # $2 es la palabra o token actual en el que se está tabulando, ya sea una
+    # cadena vacía o una palabra parcial, y por lo tanto quiere ser combinada
+    # para llegar a algún subconjunto de nuestra lista de candidatos que
+    # realmente coincida.
+    #
+    # COMPREPLY es la lista de finalizaciones válidas devueltas a `completar`.
+    COMPREPLY=( $(compgen -W "${{candidates}}" -- $2) )
+}}
+
+
+# Llama a Shell Builtin que use lo anterior para completar nuestras
+# invocaciones.
+# * -F: usar el nombre de función dado para generar finalizaciones.
+# * -o default: cuando la función no genera resultados, usa nombres de archivo.
+# * posicional args: nombres de programas para completar.
+completar -F _complete_{binario} -o default {spaced_names}
+
+# vim: set ft=sh :
