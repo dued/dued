@@ -175,8 +175,8 @@ class Programa(object):
 
     # ¿Otras variables globales de nivel de clase que una subclase podría
     # anular en algún momento?
-    ancho_de_sangría_inicial = 2
-    sangria_inicial = " " * ancho_de_sangría_inicial
+    ancho_de_sangria_inicial = 2
+    sangria_inicial = " " * ancho_de_sangria_inicial
     ancho_de_sangria = 4
     sangrar = " " * ancho_de_sangria
     relleno_col = 3
@@ -974,7 +974,7 @@ class Programa(object):
         ancho_de_desc = (
             pty_dimension()[0]
             - ancho_de_nombre
-            - self.ancho_de_sangría_inicial
+            - self.ancho_de_sangria_inicial
             - self.relleno_col
             - 1
         )
