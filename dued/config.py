@@ -899,7 +899,7 @@ class Config(DataProxy):
 
     def _cargar_archivo(self, prefijo, absoluto=False, combinar=True):
         # Preparar
-        ubicado = "_{}ubicado".format(prefijo)
+        ubicado = "_{}_ubicado".format(prefijo)
         ruta = "_{}_ruta".format(prefijo)
         datos = "_{}".format(prefijo)
         arreglo = self.prefijo_de_archivo
@@ -1015,11 +1015,11 @@ class Config(DataProxy):
     def _fusionar_archivo(self, nombre, desc):
         # Preparar
         desc += " archivo de configuración"  # yup
-        ubicado = getattr(self, "_{}ubicado".format(nombre))
+        _ubicado = getattr(self, "_{}_ubicado".format(nombre))
         ruta = getattr(self, "_{}_ruta".format(nombre))
         datos = getattr(self, "_{}".format(nombre))
         # None -> todavía no se ha cargado
-        if ubicado is None:
+        if _ubicado is None:
             debug("{} aún no se ha cargado, omitiendo".format(desc))
         # True -> hurra
         elif ubicado:
