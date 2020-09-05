@@ -120,7 +120,7 @@ class DataProxy(object):
             err = "No attribute or config clave found for {!r}".format(clave)
             attrs = [x for x in dir(self.__class__) if not x.startswith("_")]
             err += "\n\nValid claves: {!r}".format(
-                sorted(list(self._config.keys()))
+                sorted(list(self._config.claves()))
             )
             err += "\n\nValid real attributes: {!r}".format(attrs)
             raise AttributeError(err)
