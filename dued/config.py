@@ -899,14 +899,14 @@ class Config(DataProxy):
 
     def _cargar_archivo(self, prefijo, absoluto=False, combinar=True):
         # Preparar
-        ubic = "_{}_ubic".format(prefijo)
+        ubicado = "_{}ubicado".format(prefijo)
         ruta = "_{}_ruta".format(prefijo)
         datos = "_{}".format(prefijo)
         arreglo = self.prefijo_de_archivo
         if arreglo is None:
             arreglo = self.prefijo
         # Cortocircuito si la carga parece haber ocurrido ya
-        if getattr(self, ubic) is not None:
+        if getattr(self, ubicado) is not None:
             return
         # Moar configuracion (mas config!!)
         if absoluto:
@@ -942,7 +942,7 @@ class Config(DataProxy):
                 # por que se encontró
                 self._set(datos, cargador(rutadearchivo))
                 self._set(ruta, rutadearchivo)
-                self._set(ubic, True)
+                self._set(ubicado, True)
                 break
             # Normalmente significa 'no existe tal archivo', así que solo anótelo y salte.
             except IOError as e:
@@ -951,9 +951,9 @@ class Config(DataProxy):
                     debug(err.format(rutadearchivo))
                 else:
                     raise
-        # Aún ninguna -> ninguna ruta con sufijo fue ubic, registre este hecho
+        # Aún ninguna -> ninguna ruta con sufijo fue ubicado, registre este hecho
         if getattr(self, ruta) is None:
-            self._set(ubic, False)
+            self._set(ubicado, False)
         # Fusionar datos cargados en si se encontró alguno
         elif combinar:
             self.combinar()
@@ -1015,14 +1015,14 @@ class Config(DataProxy):
     def _fusionar_archivo(self, nombre, desc):
         # Preparar
         desc += " archivo de configuración"  # yup
-        ubic = getattr(self, "_{}_ubic".format(nombre))
+        ubicado = getattr(self, "_{}ubicado".format(nombre))
         ruta = getattr(self, "_{}_ruta".format(nombre))
         datos = getattr(self, "_{}".format(nombre))
         # None -> todavía no se ha cargado
-        if ubic is None:
+        if ubicado is None:
             debug("{} aún no se ha cargado, omitiendo".format(desc))
         # True -> hurra
-        elif ubic:
+        elif ubicado:
             debug("{} ({}): {!r}".format(desc, ruta, datos))
             fusionar_dics(self._config, datos)
         # False -> lo intentó, no tuvo éxito
