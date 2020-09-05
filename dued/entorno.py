@@ -75,7 +75,7 @@ class Entorno(object):
                 # Manejador de conflictos
                 for clave in gateo:
                     if clave in vars_nuevas:
-                        err = "Encontrado> 1 fuente para {}"
+                        err = "Encontrado> 1 origen para {}"
                         raise VarEntAmbigua(err.format(clave))
                 # Fusionar y continuar
                 vars_nuevas.update(gateo)

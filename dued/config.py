@@ -34,10 +34,10 @@ else:
 
 class DataProxy(object):
     """
-    Clase de ayuda que implementa el acceso anidado dic+atrib para `.Config`.
+    Clase de ayuda que implementa el acceso anidado dict+atrib para `.Config`.
 
     Específicamente, se usa tanto para `.Config` como para envolver cualquier
-    otro dicc asignado como valores de configuración (recursivamente).
+    otro dicts asignado como valores de configuración (recursivamente).
 
     .. warning::
         Todos los métodos (de este objeto o en subclases) deben tener cuidado 
@@ -48,7 +48,7 @@ class DataProxy(object):
     .. versionadded:: 1.0
     """
 
-    # Atributos que se proxean (transfieren) a través del obj de config interno de dicc-fusionado.
+    # Atributos que se proxean (transfieren) a través del obj de config interno de dict-fusionado.
     _proxies = (
         tuple(
             """
@@ -77,7 +77,7 @@ class DataProxy(object):
     def datos_desde(cls, datos, raiz=None, rutaclave=tuple()):
         """
         Constructor alternativo para DataProxies 'baby' usado como valores de
-        sub-dicc.
+        sub-dict.
 
         Permite la creación de objetos DataProxy independientes y también
         permite que las subclases como `.Config` definan su propio 
@@ -178,8 +178,8 @@ class DataProxy(object):
         # En este punto deberíamos poder asumir un self._config ...
         valor = self._config[clave]
         if isinstance(valor, dict):
-            # La ruta clave del nuevo objeto es simplemente la clave, precedida 
-            # por nuestra propia ruta clave si tenemos una.
+            # La rutaclave del nuevo objeto es simplemente la clave, precedida 
+            # por nuestra propia rutaclave si tenemos una.
             rutaclave = (clave,)
             if hasattr(self, "_rutaclave"):
                 rutaclave = self._rutaclave + rutaclave
@@ -291,7 +291,7 @@ class DataProxy(object):
         clave_existio = args and args[0] in self._config
         # Correr localmente
         ret = self._config.setdefault(*args)
-        # La clave ya existía -> nada había mutado, cortocircuito
+        # La Clave ya existía -> nada había mutado, cortocircuito
         if clave_existio:
             return ret
         # Aquí, podemos suponer que la clave no existía y, por lo tanto, el 
@@ -348,7 +348,7 @@ class Config(DataProxy):
 
     Esta clase implementa todo el protocolo del diccionario: métodos como
     ``claves``, ``valores``, ``items``, ``pop``, etc., deberían funcionar
-    como lo hacen en los dicc regulares. También implementa nuevos métodos
+    como lo hacen en los dicts regulares. También implementa nuevos métodos
     específicos de configuración como `cargar_sistema`,`cargar_coleccion`,
     `combinar`,`clonar`, etc.
 
@@ -407,7 +407,7 @@ class Config(DataProxy):
     ejemplo, aplicaciones de mutadores de dict-style como ``pop``, 
     ``limpiar``, etc.) también se rastrea en su propia estructura, lo que
     permite que el objeto de configuración respete tales llamadas a métodos
-    sin mutar los datos fuente subyacentes.
+    sin mutar los datos origen subyacentes.
 
     **Atributos de clase especiales**
 
@@ -549,12 +549,11 @@ class Config(DataProxy):
         Crea un nuevo objeto de configuración.
 
         :param dict defaults:
-            Un dicc que contiene datos de configuración predeterminados (nivel
+            Un dict que contiene datos de configuración predeterminados (nivel
             más bajo). Por defecto: global_defaults`.
 
         :param dict anulaciones:
-            A dict containing nivel-de-anulacion config datos. Default: ``{}``.
-            Un dicc que contiene los datos de configuración de 
+            Un dict que contiene los datos de configuración de 
             nivel-de-anulacion. Predeterminado: ``{}``.
 
         :param str sistema_prefijo:
@@ -675,8 +674,8 @@ class Config(DataProxy):
 
         # Nivel más alto absoluto: modificaciones del usuario.
         self._set(_modificaciones={})
-        # Y su hermano: eliminaciones de usuarios. (almacenado como un dicc plano
-        # de claves de ruta clave-valor ficticios (dummy), para pruebas/eliminación
+        # Y su hermano: eliminaciones de usuarios. (almacenado como un dict plano
+        # de claves de ruta Clave-valor ficticios (dummy), para pruebas/eliminación
         # de miembros en tiempo constante sin recursividad desordenada. 
         # TODO: ¿tal vez rehacer _everything_ de esa manera? en _modificaciones
         # y otros niveles, los valores por supuesto serían importantes y no solo None)
@@ -1177,7 +1176,7 @@ class Config(DataProxy):
         :param valor:
             El valor que se escribe.
         """
-        # Primero, asegúrese de borrar la ruta-clave de _eliminaciones, en caso
+        # Primero, asegúrese de borrar la rutaclave de _eliminaciones, en caso
         # de que se haya eliminado previamente.
         extirpar(self._eliminaciones, rutaclave + (clave,))
         # Ahora podemos agregarlo a la estructura de modificaciones.
@@ -1208,7 +1207,7 @@ class Config(DataProxy):
             if subclave in datos:
                 datos = datos[subclave]
                 # Si encontramos None, significa que algo más alto que nuestra
-                # ruta de clave solicitada ya está marcado como eliminado; para
+                # rutaclave solicitada ya está marcado como eliminado; para
                 # que no tengamos que hacer nada ni ir más lejos.
                 if datos is None:
                     return
@@ -1231,19 +1230,19 @@ class ErrorDeFusionAmbiguo(ValueError):
 
 def fusionar_dics(base, updates):
     """
-    Recursivamente combina dic ``updates`` en dic ``base`` (mutando ``base``.)
+    Recursivamente combina dict ``updates`` en dict ``base`` (mutando ``base``.)
 
     * Se recurrirá a los valores que son en sí mismos dicccionarios.
-    * Valores que son un dic en una entrada y *no* un dic en la otra entrada
+    * Valores que son un dict en una entrada y *no* un dict en la otra entrada
       (por ejemplo, si nuestras entradas fueran 
       ``{'foo': 5}`` and ``{'foo': {'bar': 5}}``) son irreconciliables y
       generará una excepción.
-    * Los valores de hoja no-dic se ejecutan a través de `copy.copy` para 
+    * Los valores de hoja no-dict se ejecutan a través de `copy.copy` para 
       evitar el sangrado de estado.
 
     .. note::
         Esto es efectivamente un "copy.deepcopy" ligero que ofrece protección
-        contra tipos no coincidentes (dic vs non-dic) y evita algunos 
+        contra tipos no coincidentes (dict vs non-dict) y evita algunos 
         problemas centrales de deepcopy (como la forma en que explota en
         ciertos tipos de objetos).
 
@@ -1300,9 +1299,9 @@ def _format_mismatch(x):
     return "{} ({!r})".format(type(x), x)
 
 
-def copiar_dic(fuente):
+def copiar_dic(origen):
     """
-    Devuelve una copia nueva de ``fuente`` con el menor estado compartido 
+    Devuelve una copia nueva de ``origen`` con el menor estado compartido 
     posible.
 
     Utiliza `fusionar_dics` debajo del capó, con un dict ``base`` vacío; 
@@ -1310,12 +1309,12 @@ def copiar_dic(fuente):
 
     .. versionadded:: 1.0
     """
-    return fusionar_dics({}, fuente)
+    return fusionar_dics({}, origen)
 
 
 def extirpar(dic_, rutaclave):
     """
-    Quita la clave apuntada por ``rutaclave`` del dic anidado ``dic_``, si
+    Quita la clave apuntada por ``rutaclave`` del dict anidado ``dic_``, si
     existe.
 
     .. versionadded:: 1.0
