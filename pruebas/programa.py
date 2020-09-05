@@ -1227,11 +1227,11 @@ Default 'fabric' artefacto: .all
     class opciones_de_ejecucion:
         " correr() banderas CLI relacionadas afectan a los valores de config 'correr'"
        
-        def _bandera_de_prueba(self, bandera, key, valor=True):
+        def _bandera_de_prueba(self, bandera, clave, valor=True):
             p = Programa()
             p.ejecutar = Mock()  # neuter
             p.correr("du {} foo".format(bandera))
-            assert p.config.correr[key] == valor
+            assert p.config.correr[clave] == valor
 
         def solo_alerta(self):
             self._bandera_de_prueba("-a", "alarma")

@@ -117,7 +117,7 @@ class Artefacto(object):
 
     def __hash__(self):
         # Presume que el nombre y el cuerpo nunca se cambiarán. Hrm.
-        # Potencialmente más limpio para no usar Artefactos como keys hash,
+        # Potencialmente más limpio para no usar Artefactos como claves hash,
         # pero hagámoslo por ahora.
         return hash(self.nombre) + hash(self.cuerpo)
 
@@ -141,7 +141,7 @@ class Artefacto(object):
 
         * El primer elemento es la lista de nombres de arg, en el orden definido.
 
-            * Es decir no podemos * simplemente usar el método ``keys()``
+            * Es decir no podemos * simplemente usar el método ``claves()``
               de un diccionario's aquí.
 
         * El segundo elemento es la asignación de nombres de arg a valores 
@@ -268,7 +268,7 @@ def artefacto(*args, **kwargs):
 
     Se puede llamar sin paréntesis si no es necesario especificar opciones
     adicionales. De lo contrario, se permiten los siguientes argumentos de
-    palabras key entre paréntesis:
+    palabras clave entre paréntesis:
 
     * ``nombre``: Nombre predeterminado para usar cuando se vincula a una
       `.Coleccion`. Útil para evitar problemas de namespace de Python
@@ -311,13 +311,13 @@ def artefacto(*args, **kwargs):
     * ``klase``: Clase para instanciar/devolver. El valor predeterminado es
       `.Artefacto`.
 
-    Si se dan argumentos que no sean palabras key, se toman como el valor
+    Si se dan argumentos que no sean palabras clave, se toman como el valor
     del kwarg ``pre`` por conveniencia. (Es un error dar tanto ``*args`` como
     ``pre`` al mismo tiempo).
 
     .. versionadded:: 1.0
     .. versionchanged:: 1.1
-        Se agregó el argumento de palabra key ``klase``.
+        Se agregó el argumento de palabra clave ``klase``.
     """
     klase = kwargs.pop("klase", Artefacto)
     # @artefacto -- (probablemente) no se dieron opciones.
@@ -399,7 +399,7 @@ class Llamar(object):
             Predeterminado: ``None``.
 
         :param dict kwargs:
-            Argumentos de palabras-key (keyword) con los que llamar, si los
+            Argumentos de palabras-clave (keyword) con los que llamar, si los
             hay. Predeterminado: ``None``.
         """
         self.artefacto = artefacto
@@ -448,7 +448,7 @@ class Llamar(object):
 
     def clonar_datos(self):
         """
-        Devuelve argumentos de palabra key adecuados para clonar esta 
+        Devuelve argumentos de palabra clave adecuados para clonar esta 
         llamada en otra.
 
         .. versionadded:: 1.1
@@ -470,7 +470,7 @@ class Llamar(object):
             Una subclase para generar en lugar de la clase actual. Opcional.
 
         :param dict with_:
-            Un dicc de argumentos de palabras key adicionales para usar al
+            Un dicc de argumentos de palabras clave adicionales para usar al
             crear el nuevo clon; Normalmente se usa cuando se clona ``dentro``
             de una subclase que tiene argumentos adicionales sobre la clase base.
             Opcional.

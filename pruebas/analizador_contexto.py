@@ -38,7 +38,7 @@ class Contexto_:
             )
 
         def expuesto_como_dic(self):
-            assert "foo" in self.c.args.keys()
+            assert "foo" in self.c.args.claves()
 
         def expuesto_como_Lexicon(self):
             assert self.c.args.bar == self.c.args["bar"]

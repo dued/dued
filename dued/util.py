@@ -54,7 +54,7 @@ for x in ("debug",):
 
 def clave_orden_del_nombre_de_artefacto(nombre):
     """
-    Tupla de key de retorno para usar ordenando los nombres de artefactos
+    Tupla de clave de retorno para usar ordenando los nombres de artefactos
     con puntos, por ejemplo, `sorted`.
 
     .. versionadded:: 1.0
@@ -208,7 +208,7 @@ class hilo_de_manejo_de_excepciones(threading.Thread):
         """
         Cree una nueva instancia de subproceso de manejo-de-excepciones.
 
-        Toma todos los argumentos de palabras key `threading.Thread`,
+        Toma todos los argumentos de palabras clave `threading.Thread`,
         a través de ``** kwargs`` para una visualización más fácil de la
         identidad del hilo al generar excepciones capturadas.
         """

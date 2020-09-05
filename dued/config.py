@@ -58,7 +58,7 @@ class DataProxy(object):
         iteritems
         iterkeys
         itervalues
-        keys
+        claves
         valores
     """.split()
         )
@@ -92,7 +92,7 @@ class DataProxy(object):
             necesita notificación sobre actualizaciones de datos.
 
         :param tuple rutaclave:
-            Tupla opcional que describe la ruta de las keys que conducen a
+            Tupla opcional que describe la ruta de las claves que conducen a
             la ubicación de este DataProxy dentro de la estructura ``raíz``
             (raiz) Requerido si se dio ``raiz`` (y viceversa).
 
@@ -104,37 +104,37 @@ class DataProxy(object):
         obj._set(_rutaclave=rutaclave)
         return obj
 
-    def __getattr__(self, key):
+    def __getattr__(self, clave):
         # NOTE: debido a la semántica predeterminada de búsqueda de atributos
         # de Python, los atributos "reales" siempre se mostrarán en el acceso
         # a los atributos y este método se omite. Ese comportamiento es bueno 
-        # para nosotros (es más intuitivo que tener una key de configuración q
+        # para nosotros (es más intuitivo que tener una clave de configuración q
         # que sombree accidentalmente un atributo o método real).
         try:
-            return self._get(key)
+            return self._get(clave)
         except KeyError:
             # Proxy las vars más especiales para configurar el protocolo dict.
-            if key in self._proxies:
-                return getattr(self._config, key)
+            if clave in self._proxies:
+                return getattr(self._config, clave)
             # De lo contrario, genere AttributeError útil para seguir getattr proto.
-            err = "No attribute or config key found for {!r}".format(key)
+            err = "No attribute or config clave found for {!r}".format(clave)
             attrs = [x for x in dir(self.__class__) if not x.startswith("_")]
-            err += "\n\nValid keys: {!r}".format(
-                sorted(list(self._config.keys()))
+            err += "\n\nValid claves: {!r}".format(
+                sorted(list(self._config.claves()))
             )
             err += "\n\nValid real attributes: {!r}".format(attrs)
             raise AttributeError(err)
 
-    def __setattr__(self, key, valor):
+    def __setattr__(self, clave, valor):
         # Convierta los conjuntos-de-atributos en actualizaciones de config siempre
-        # que no tengamos un atributo real con el nombre/key dado.
-        tiene_atributo_real = key in dir(self)
+        # que no tengamos un atributo real con el nombre/clave dado.
+        tiene_atributo_real = clave in dir(self)
         if not tiene_atributo_real:
             # Asegúrese de activar nuestro propio __setitem__ en lugar de ir 
             # directamente a nuestro dict/cache interno
-            self[key] = valor
+            self[clave] = valor
         else:
-            super(DataProxy, self).__setattr__(key, valor)
+            super(DataProxy, self).__setattr__(clave, valor)
 
     def __iter__(self):
         # Por alguna razón, Python ignora nuestro __hasattr__ al determinar 
@@ -161,26 +161,26 @@ class DataProxy(object):
     def __len__(self):
         return len(self._config)
 
-    def __setitem__(self, key, valor):
-        self._config[key] = valor
-        self._trazar_modificacion_de(key, valor)
+    def __setitem__(self, clave, valor):
+        self._config[clave] = valor
+        self._trazar_modificacion_de(clave, valor)
 
-    def __getitem__(self, key):
-        return self._get(key)
+    def __getitem__(self, clave):
+        return self._get(clave)
 
-    def _get(self, key):
+    def _get(self, clave):
         # Cortocircuito si los mecanismos de pickling/copia preguntan si
         # tenemos __setstate__ etc; preguntarán esto sin llamar a nuestro
         #  __init__ primero, por lo que, de lo contrario, estaríamos en un
         #  catch-22 que causa RecursionError.
-        if key in ("__setstate__",):
-            raise AttributeError(key)
+        if clave in ("__setstate__",):
+            raise AttributeError(clave)
         # En este punto deberíamos poder asumir un self._config ...
-        valor = self._config[key]
+        valor = self._config[clave]
         if isinstance(valor, dict):
-            # La rutaclave del nuevo objeto es simplemente la key, precedida 
+            # La rutaclave del nuevo objeto es simplemente la clave, precedida 
             # por nuestra propia rutaclave si tenemos una.
-            rutaclave = (key,)
+            rutaclave = (clave,)
             if hasattr(self, "_rutaclave"):
                 rutaclave = self._rutaclave + rutaclave
             # Si no tenemos _raiz, debemos ser la raiz, entonces somos nosotros. 
@@ -192,7 +192,7 @@ class DataProxy(object):
     def _set(self, *args, **kwargs):
         """
         Solución alternativa de conveniencia del comportamiento predeterminado
-        de 'atributos son keys de configuración'.
+        de 'atributos son claves de configuración'.
 
         Utiliza `object .__ setattr__` para evitar el comportamiento normal de 
         proxy de la clase, pero es menos verboso que usarlo directamente.
@@ -205,14 +205,14 @@ class DataProxy(object):
         """
         if args:
             object.__setattr__(self, *args)
-        for key, valor in six.iteritems(kwargs):
-            object.__setattr__(self, key, valor)
+        for clave, valor in six.iteritems(kwargs):
+            object.__setattr__(self, clave, valor)
 
     def __repr__(self):
         return "<{}: {}>".format(self.__class__.__name__, self._config)
 
-    def __contains__(self, key):
-        return key in self._config
+    def __contains__(self, clave):
+        return clave in self._config
 
     @property
     def _es_hoja(self):
@@ -222,7 +222,7 @@ class DataProxy(object):
     def _es_raiz(self):
         return hasattr(self, "_modificar")
 
-    def _trazar_eliminacion_de(self, key):
+    def _trazar_eliminacion_de(self, clave):
         # Agarrar el objeto raiz responsable de rastrear las remociones; ya
         # sea la raiz referenciada (si somos una hoja) o nosotros mismos 
         # (si no lo somos). (Los nodos intermedios nunca tienen nada más
@@ -234,20 +234,20 @@ class DataProxy(object):
         elif self._es_raiz:
             objetivo = self
         if objetivo is not None:
-            objetivo._eliminar(getattr(self, "_rutaclave", tuple()), key)
+            objetivo._eliminar(getattr(self, "_rutaclave", tuple()), clave)
 
-    def _trazar_modificacion_de(self, key, valor):
+    def _trazar_modificacion_de(self, clave, valor):
         objetivo = None
         if self._es_hoja:
             objetivo = self._raiz
         elif self._es_raiz:
             objetivo = self
         if objetivo is not None:
-            objetivo._modificar(getattr(self, "_rutaclave", tuple()), key, valor)
+            objetivo._modificar(getattr(self, "_rutaclave", tuple()), clave, valor)
 
-    def __delitem__(self, key):
-        del self._config[key]
-        self._trazar_eliminacion_de(key)
+    def __delitem__(self, clave):
+        del self._config[clave]
+        self._trazar_eliminacion_de(clave)
 
     def __delattr__(self, nombre):
         # Asegúrese de no estropear la eliminación de atributos verdaderos 
@@ -258,9 +258,9 @@ class DataProxy(object):
             object.__delattr__(self, nombre)
 
     def limpiar(self):
-        keys = list(self.keys())
-        for key in keys:
-            del self[key]
+        claves = list(self.claves())
+        for clave in claves:
+            del self[clave]
 
     def pop(self, *args):
         # Debe probar esto antes de (posiblemente) mutar self._config
@@ -270,13 +270,13 @@ class DataProxy(object):
         # esquina que manejan re: args (arity, manejo de un valor predeterminado,
         # aumento de KeyError, etc.)
         ret = self._config.pop(*args)
-        # Si parece que no se produjo ningún estallido (la key no estaba allí), 
+        # Si parece que no se produjo ningún estallido (la clave no estaba allí), 
         # presumiblemente el usuario dio el valor predeterminado, por lo que
         # podemos hacer un corto para regresar aquí, no es necesario rastrear 
         # una eliminación que no sucedió.
         if not clave_existio:
             return ret
-        # Aquí, podemos suponer que existió al menos la primera posarg (key).
+        # Aquí, podemos suponer que existió al menos la primera posarg (clave).
         self._trazar_eliminacion_de(args[0])
         # En todos los casos, devuelve el valor explotado.
         return ret
@@ -287,30 +287,30 @@ class DataProxy(object):
         return ret
 
     def setdefault(self, *args):
-        # Debe probar por adelantado si la key existió de antemano
+        # Debe probar por adelantado si la clave existió de antemano
         clave_existio = args and args[0] in self._config
         # Correr localmente
         ret = self._config.setdefault(*args)
         # La Clave ya existía -> nada había mutado, cortocircuito
         if clave_existio:
             return ret
-        # Aquí, podemos suponer que la key no existía y, por lo tanto, el 
+        # Aquí, podemos suponer que la clave no existía y, por lo tanto, el 
         # usuario debe haber proporcionado un 'default' (si no lo hubiera hecho,
         # se habría exceptuado el setdefault() real anterior).
-        key, default = args
-        self._trazar_modificacion_de(key, default)
+        clave, default = args
+        self._trazar_modificacion_de(clave, default)
         return ret
 
     def actualizar(self, *args, **kwargs):
         if kwargs:
-            for key, valor in six.iteritems(kwargs):
-                self[key] = valor
+            for clave, valor in six.iteritems(kwargs):
+                self[clave] = valor
         elif args:
             # TODO: quejarse si arity>1
             arg = args[0]
             if isinstance(arg, dict):
-                for key in arg:
-                    self[key] = arg[key]
+                for clave in arg:
+                    self[clave] = arg[clave]
             else:
                 # TODO: Ser más estricto sobre la entrada en este caso
                 for pair in arg:
@@ -347,7 +347,7 @@ class Config(DataProxy):
     **Una nota sobre métodos y acceso a atributos**
 
     Esta clase implementa todo el protocolo del diccionario: métodos como
-    ``keys``, ``valores``, ``items``, ``pop``, etc., deberían funcionar
+    ``claves``, ``valores``, ``items``, ``pop``, etc., deberían funcionar
     como lo hacen en los dicts regulares. También implementa nuevos métodos
     específicos de configuración como `cargar_sistema`,`cargar_coleccion`,
     `combinar`,`clonar`, etc.
@@ -355,7 +355,7 @@ class Config(DataProxy):
     .. warning::
         En consecuencia, esto significa que si tiene opciones de configuración
         compartiendo nombres con estos métodos, **debe** usar sintaxis de 
-        diccionario (por ejemplo, ``miconfig['keys']``) para acceder a los
+        diccionario (por ejemplo, ``miconfig['claves']``) para acceder a los
         datos de configuración.
 
     **Coclo de Vida**
@@ -675,7 +675,7 @@ class Config(DataProxy):
         # Nivel más alto absoluto: modificaciones del usuario.
         self._set(_modificaciones={})
         # Y su hermano: eliminaciones de usuarios. (almacenado como un dict plano
-        # de keys de ruta Clave-valor ficticios (dummy), para pruebas/eliminación
+        # de claves de ruta Clave-valor ficticios (dummy), para pruebas/eliminación
         # de miembros en tiempo constante sin recursividad desordenada. 
         # TODO: ¿tal vez rehacer _everything_ de esa manera? en _modificaciones
         # y otros niveles, los valores por supuesto serían importantes y no solo None)
@@ -836,7 +836,7 @@ class Config(DataProxy):
         demás fuentes (como un archivo de config en tiempo de ejecución o 
         config por-colección). La carga desde el shell no es tremendamente 
         costoso, pero debe realizarse en un momento específico para garantizar
-        que el comportamiento de "las únicas keys de config conocidas se 
+        que el comportamiento de "las únicas claves de config conocidas se 
         cargan desde el entorno" funcione correctamente.
 
         Consulte :ref:`entorno-vars` para obtener detalles sobre esta decisión
@@ -970,10 +970,10 @@ class Config(DataProxy):
 
     def _cargar_py(self, ruta):
         datos = {}
-        for key, valor in six.iteritems(load_source("mod", ruta)):
+        for clave, valor in six.iteritems(load_source("mod", ruta)):
             # Elimine miembros especiales, ya que siempre serán incorporados
             # y otras cosas especiales que un usuario no querrá en su configuración.
-            if key.startswith("__"):
+            if clave.startswith("__"):
                 continue
             # Generar excepciones en los valores del módulo; son imposibles de cortar.
             # TODO: ¿succionarlo y volver a implementar copy() sin decapado? 
@@ -982,8 +982,8 @@ class Config(DataProxy):
             # y no en un "archivo de configuración" ... ¿verdad?
             if isinstance(valor, types.ModuleType):
                 err = "'{}' es un módulo, que no se puede utilizar como valor de config. (¿Quizás está dando un archivo de artefactos en lugar de un archivo de configuración por error??)"  # noqa
-                raise MiembroDeConfigNoSeleccionable(err.format(key))
-            datos[key] = valor
+                raise MiembroDeConfigNoSeleccionable(err.format(clave))
+            datos[clave] = valor
         return datos
 
     def combinar(self):
@@ -1057,7 +1057,7 @@ class Config(DataProxy):
             Usado por bibliotecas cliente que tienen sus propias subclases 
             `.Config` que p. Ej. definen valores predeterminados adicionales;
             clonando "en" una de estas subclases asegura que las 
-            keys/subarboles nuevos se agreguen con elegancia, sin 
+            claves/subarboles nuevos se agreguen con elegancia, sin 
             sobrescribir nada que pueda haber sido predefinido.
 
             default: ``None`` (simplemente clone en otro `.Config` regular).
@@ -1160,25 +1160,25 @@ class Config(DataProxy):
             lento=True,
         )
 
-    def _modificar(self, rutaclave, key, valor):
+    def _modificar(self, rutaclave, clave, valor):
         """
         Actualiza nuestro nivel de configuración de modificaciones-de-usuario
         con nuevos datos.
 
         :param tuple rutaclave:
-            La ruta de key que identifica el sub-dict que se actualiza. 
+            La ruta de clave que identifica el sub-dict que se actualiza. 
             Puede ser una tupla vacía si la actualización ocurre en el nivel
             superior.
 
-        :param str key:
-            La key actual recibe una actualización.
+        :param str clave:
+            La clave actual recibe una actualización.
 
         :param valor:
             El valor que se escribe.
         """
         # Primero, asegúrese de borrar la rutaclave de _eliminaciones, en caso
         # de que se haya eliminado previamente.
-        extirpar(self._eliminaciones, rutaclave + (key,))
+        extirpar(self._eliminaciones, rutaclave + (clave,))
         # Ahora podemos agregarlo a la estructura de modificaciones.
         datos = self._modificaciones
         rutaclave = list(rutaclave)
@@ -1189,10 +1189,10 @@ class Config(DataProxy):
                 # TODO: genera esta y las siguientes 3 líneas ...
                 datos[subclave] = {}
             datos = datos[subclave]
-        datos[key] = valor
+        datos[clave] = valor
         self.combinar()
 
-    def _eliminar(self, rutaclave, key):
+    def _eliminar(self, rutaclave, clave):
         """
         Como `._modificar`, pero para eliminar.
         """
@@ -1219,8 +1219,8 @@ class Config(DataProxy):
                 # Luego prepárate para la próxima iteración
                 datos = datos[subclave]
         # Bucle salido -> los datos deben ser el dict de más hojas, por lo que ahora
-        # podemos establecer nuestra key eliminada en None
-        datos[key] = None
+        # podemos establecer nuestra clave eliminada en None
+        datos[clave] = None
         self.combinar()
 
 
@@ -1253,37 +1253,37 @@ def fusionar_dics(base, updates):
     .. versionadded:: 1.0
     """
     # TODO: for chrissakes just make it return instead of mutating?
-    for key, valor in (updates or {}).items():
-        # Dict values whose keys also exist in 'base' -> recurse
+    for clave, valor in (updates or {}).items():
+        # Dict values whose claves also exist in 'base' -> recurse
         # (But only if both types are dicts.)
-        if key in base:
+        if clave in base:
             if isinstance(valor, dict):
-                if isinstance(base[key], dict):
-                    fusionar_dics(base[key], valor)
+                if isinstance(base[clave], dict):
+                    fusionar_dics(base[clave], valor)
                 else:
-                    raise _merge_error(base[key], valor)
+                    raise _merge_error(base[clave], valor)
             else:
-                if isinstance(base[key], dict):
-                    raise _merge_error(base[key], valor)
+                if isinstance(base[clave], dict):
+                    raise _merge_error(base[clave], valor)
                 # Fileno-bearing objects are probably 'real' files which do not
                 # copy well & must be passed by reference. Meh.
                 elif hasattr(valor, "fileno"):
-                    base[key] = valor
+                    base[clave] = valor
                 else:
-                    base[key] = copy.copy(valor)
+                    base[clave] = copy.copy(valor)
         # New values get set anew
         else:
             # Dict values get reconstructed to avoid being references to the
             # updates dict, which can lead to nasty state-bleed bugs otherwise
             if isinstance(valor, dict):
-                base[key] = copiar_dic(valor)
+                base[clave] = copiar_dic(valor)
             # Fileno-bearing objects are probably 'real' files which do not
             # copy well & must be passed by reference. Meh.
             elif hasattr(valor, "fileno"):
-                base[key] = valor
+                base[clave] = valor
             # Non-dict values just get set straight
             else:
-                base[key] = copy.copy(valor)
+                base[clave] = copy.copy(valor)
     return base
 
 
@@ -1314,7 +1314,7 @@ def copiar_dic(origen):
 
 def extirpar(dic_, rutaclave):
     """
-    Quita la key apuntada por ``rutaclave`` del dict anidado ``dic_``, si
+    Quita la clave apuntada por ``rutaclave`` del dict anidado ``dic_``, si
     existe.
 
     .. versionadded:: 1.0
@@ -1323,28 +1323,28 @@ def extirpar(dic_, rutaclave):
     rutaclave = list(rutaclave)
     hoja_key = rutaclave.pop()
     while rutaclave:
-        key = rutaclave.pop(0)
-        if key not in datos:
+        clave = rutaclave.pop(0)
+        if clave not in datos:
             # No ahí, nada que extirpar
             return
-        datos = datos[key]
+        datos = datos[clave]
     if hoja_key in datos:
         del datos[hoja_key]
 
 
 def aniquilar(base, eliminaciones):
     """
-    Eliminar todas las keys (anidado) mencionadas en ''eliminaciones'', de
+    Eliminar todas las claves (anidado) mencionadas en ''eliminaciones'', de
     ``base``.
 
     .. versionadded:: 1.0
     """
-    for key, valor in six.iteritems(eliminaciones):
+    for clave, valor in six.iteritems(eliminaciones):
         if isinstance(valor, dict):
-            # NOTE: no probar si la key [key] existe; si algo está 
+            # NOTE: no probar si la clave [clave] existe; si algo está 
             # listado en una estructura de eliminaciones, debe existir en
             # alguna fuente en algún lugar y, por lo tanto, también en la
             # caché que se borra.
-            aniquilar(base[key], eliminaciones[key])
+            aniquilar(base[clave], eliminaciones[clave])
         else:  # implicitly None
-            del base[key]
+            del base[clave]

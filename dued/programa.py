@@ -762,9 +762,9 @@ class Programa(object):
         # si la versión via-artefacto del arg realmente recibió un valor.
         # TODO: insertar esto en una subclase de Léxico Argumento-aware y
         # .actualizar()?
-        for key, arg in nuevo_args.items():
+        for clave, arg in nuevo_args.items():
             if arg.obtuvo_valor:
-                contexto.args[key]._value = arg._value
+                contexto.args[clave]._value = arg._value
 
     def analizar_artefactos(self):
         """

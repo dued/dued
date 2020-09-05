@@ -238,7 +238,7 @@ class Config_:
                 c.nop
             except AttributeError as e:
                 esperado = """
-No se encontró ningún atributo o key de configuración para 'nop'
+No se encontró ningún atributo o clave de configuración para 'nop'
 
 Claves válidas: ['correr', 'corredores', 'sudo', 'artefactos', 'tiempo_de_descanso']
 
@@ -246,10 +246,10 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
 """.strip()  # noqa
                 assert str(e) == esperado
             else:
-                assert False, "¡No obtuve un AttributeError en una key incorrecta!"
+                assert False, "¡No obtuve un AttributeError en una clave incorrecta!"
 
         def subclaves_se_combinan_no_se_sobrescriben(self):
-            # Asegura que las keys anidadas se fusionen profundamente
+            # Asegura que las claves anidadas se fusionen profundamente
             # en lugar de superficialmente.
             defaults = {"foo": {"bar": "baz"}}
             anulaciones = {"foo": {"nobar": "nobaz"}}
@@ -259,11 +259,11 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
 
         def es_iterable_como_dic(self):
             c = Config(defaults={"a": 1, "b": 2})
-            assert set(c.keys()) == {"a", "b"}
+            assert set(c.claves()) == {"a", "b"}
             assert set(list(c)) == {"a", "b"}
 
         def admite_protocolos_de_dic_de_solo_lectura(self):
-            # Utilice un  de un solo par de keys para evitar problemas de
+            # Utilice un  de un solo par de claves para evitar problemas de
             # clasificación en las pruebas.
             c = Config(defaults={"foo": "bar"})
             c2 = Config(defaults={"foo": "bar"})
@@ -316,7 +316,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
                 assert c == {}
                 # Con el arg predeterminado
                 assert c.pop("hum", "bien entonces") == "bien entonces"
-                # Hoja (key diferente para evitar ErrorDeFusionAmbiguo)
+                # Hoja (clave diferente para evitar ErrorDeFusionAmbiguo)
                 c.anidado = {"hojaclave": "hojavalor"}
                 assert c.anidado.pop("hojaclave") == "hojavalor"
                 assert c == {"anidado": {}}
@@ -464,7 +464,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
             assert c["mimetodo"] == "bar"
 
         def config_en_si_mismo_almacenado_como_nombre_privado(self):
-            # Es decir se puede hacer referencia a una key llamada 'config',
+            # Es decir se puede hacer referencia a una clave llamada 'config',
             # que es relativamente común (por ejemplo, 
             # <Config> .miservicio.config -> el contenido de un archivo de config
             # o ruta, etc.)
@@ -977,8 +977,8 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
     class clon:
         def conserva_miembros_basicos(self):
             c1 = Config(
-                defaults={"key": "default"},
-                anulaciones={"key": "anular"},
+                defaults={"clave": "default"},
+                anulaciones={"clave": "anular"},
                 sistema_prefijo="global",
                 ususario_prefijo="usuario",
                 dir_de_py="proyecto",
@@ -1004,14 +1004,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
 
         def conserva_config_combinada(self):
             c = Config(
-                defaults={"key": "default"}, anulaciones={"key": "anular"}
+                defaults={"clave": "default"}, anulaciones={"clave": "anular"}
             )
-            assert c.key == "anular"
-            assert c._defaults["key"] == "default"
+            assert c.clave == "anular"
+            assert c._defaults["clave"] == "default"
             c2 = c.clonar()
-            assert c2.key == "anular"
-            assert c2._defaults["key"] == "default"
-            assert c2._anula["key"] == "anular"
+            assert c2.clave == "anular"
+            assert c2._defaults["clave"] == "default"
+            assert c2._anula["clave"] == "anular"
 
         def conserva_datos_del_archivo(self):
             c = Config(sistema_prefijo=join(CONFIGS_RUTA, "yaml/"))
@@ -1130,10 +1130,10 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
             # Identidad básica
             assert c is not c2, "Clon tenía la misma identidad que original!"
             # Los dicts se recrean
-            assert c.oh is not c2.oh, "La key de nivel superior tenía la misma identidad."
+            assert c.oh is not c2.oh, "La clave de nivel superior tenía la misma identidad."
             assert (
                 c.oh.querido is not c2.oh.querido
-            ), "¡La key de nivel medio tenía la misma identidad!"  # noqa
+            ), "¡La clave de nivel medio tenía la misma identidad!"  # noqa
             # Los valores básicos se copian
             err = "¡Objeto() hoja tenía la misma identidad!"
             assert c.oh.querido.dios is not c2.oh.querido.dios, err

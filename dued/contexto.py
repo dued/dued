@@ -46,7 +46,7 @@ class Contexto(DataProxy):
         #: El objeto `.Config` completamente fusionado apropiado para este contexto.
         #:
         #: Se puede acceder a la configuración de `.Config` (consulte su 
-        #: documentación para obtener más detalles) como keys de diccionario 
+        #: documentación para obtener más detalles) como claves de diccionario 
         #:  (``c.config['foo']``) o atributos de objeto (``c.config.foo``).
         #:
         #: Como forma abreviada de conveniencia, el objeto `.Contexto` se convierte 
@@ -69,7 +69,7 @@ class Contexto(DataProxy):
     @property
     def config(self):
         # Permite que Contexto exponga un atributo .config aunque DataProxy lo considere
-        # una key de configuración.
+        # una clave de configuración.
         return self._config
 
     @config.setter
@@ -92,7 +92,7 @@ class Contexto(DataProxy):
         ``comando``  y ``kwargs``.
 
         Consulte `.Corredor.correr` para obtener detalles sobre ``comando`` y
-        los argumentos de palabras key disponibles.
+        los argumentos de palabras clave disponibles.
 
         .. versionadded:: 1.0
         """
@@ -163,7 +163,7 @@ class Contexto(DataProxy):
         Hay un par de formas de cambiar el comportamiento de este método:
 
         - Debido a que envuelve `correr`, respeta todos los parámetros de 
-          config y argumentos de palabras key de `correr`, de la misma 
+          config y argumentos de palabras clave de `correr`, de la misma 
           manera que lo hace `correr`.
 
             - Por lo tanto, invocaciones como ``c.sudo('comando', echo=True)``
@@ -171,7 +171,7 @@ class Contexto(DataProxy):
               configuración o una var entorno) especifica que, p. ej. 
               ``correr.alarma = True``, eso también tendrá efecto en `sudo`.
 
-         - `sudo` tiene su propio conjunto de argumentos de palabras key 
+         - `sudo` tiene su propio conjunto de argumentos de palabras clave 
            (ver más abajo) y también son controlables a través del sistema de
            configuración, bajo el árbol ``sudo.*``.
 

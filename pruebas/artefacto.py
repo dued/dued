@@ -429,7 +429,7 @@ class Llamada_:
             llamar = Llamar(
                 self.artefacto,
                 args=("posarg1", "posarg2"),
-                # Dict de key-única para evitar problemas ordenamiento de dict
+                # Dict de clave-única para evitar problemas ordenamiento de dict
                 kwargs={"kwarg1": "val1"},
             )
             esperado = "<Llamar 'miartefacto', args: ('posarg1', 'posarg2'), kwargs: {'kwarg1': 'val1'}>"  # noqa
