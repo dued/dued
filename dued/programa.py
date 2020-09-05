@@ -177,8 +177,8 @@ class Programa(object):
     # anular en algún momento?
     ancho_de_sangría_inicial = 2
     sangria_inicial = " " * ancho_de_sangría_inicial
-    ancho_de_sangría = 4
-    sangrar = " " * ancho_de_sangría
+    ancho_de_sangria = 4
+    sangrar = " " * ancho_de_sangria
     relleno_col = 3
 
     def __init__(
