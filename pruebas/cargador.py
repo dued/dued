@@ -43,7 +43,7 @@ class Cargador_:
         cargador = _CargadorBasico(config=config)
         assert cargador.config.artefactos.nombre_de_coleccion == "misartefactos"
 
-    def agrega_el_dir_padre_del_modulo_a_la_ruta_del_sistema(self):
+    def agrega_el_dir_padre_del_modulo_a_la_sistema_ruta(self):
         # no-explota prueba -- esta chicha.
         _CargadorBasico().cargar("hangar")
 

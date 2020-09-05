@@ -43,8 +43,8 @@ install:
   # Python 3 es un espacio de nombres muy agradable globalmente. Python 2
   # está enmascarado por el venv predeterminado de Travis, por lo que
   # debemos hardcodearlo.
-  - "virtualenv alt_env --python=$([[ $TRAVIS_PYTHON_VERSION == 2* ]] && echo python3 || echo /usr/bin/python)"
-  - alt_env/bin/pip install wheel
+  - "virtualenv alt_entorno --python=$([[ $TRAVIS_PYTHON_VERSION == 2* ]] && echo python3 || echo /usr/bin/python)"
+  - alt_entorno/bin/pip install wheel
 before_script:
   # Cree 'sudo ususario' con/sudo contraseña y permisos en el homedir de Travis
   - du travis.make-sudouser
@@ -70,7 +70,7 @@ script:
   - du travis.prueba-installation --paquete=dued --sanity="du --lista"
   # Prueba de Compilaciones de distribución, incluidas algunas cosas
   # basadas en package_data (impresión de script de finalización)
-  - "du travis.prueba-packaging --paquete=dued --sanity='du --lista && du --script-completado zsh' --alt-python=alt_env/bin/python"
+  - "du travis.prueba-packaging --paquete=dued --sanity='du --lista && du --script-completado zsh' --alt-python=alt_entorno/bin/python"
 after_success:
   # Subir datos de coverage a codecov
   - codecov

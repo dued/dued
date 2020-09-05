@@ -125,7 +125,7 @@ class Ejecutor(object):
             # (solo Fabric 2 u otras bibliotecas de subclases)
             config_de_coleccion = self.coleccion.configuracion(llamar.llamado_de)
             config.cargar_coleccion(config_de_coleccion)
-            config.cargar_ent_de_shell()
+            config.cargar_entorno_shell()
             debug("Finalizada la carga de configuraciones de entorno de coleccion & shell")
             # Obtenga el contexto final de Llamar (que sabrá cómo generar uno
             # apropiado; por ejemplo, las subclases pueden usar datos 

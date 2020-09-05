@@ -62,13 +62,13 @@ class _CorredorDeExcepcionGenerica(_Dummy):
 def _corre(*args, **kwargs):
     klase = kwargs.pop("klase", _Dummy)
     settings = kwargs.pop("settings", {})
-    contexto = Contexto(config=Config(anula=settings))
+    contexto = Contexto(config=Config(anulaciones=settings))
     return klase(contexto).correr(*args, **kwargs)
 
 
 def _corredor(salida="", err="", **kwargs):
     klase = kwargs.pop("klase", _Dummy)
-    corredor = klase(Contexto(config=Config(anula=kwargs)))
+    corredor = klase(Contexto(config=Config(anulaciones=kwargs)))
     if "salidas" in kwargs:
         corredor.cod_de_retorno = Mock(valor_de_retorno=kwargs.pop("salidas"))
     out_file = BytesIO(b(salida))
@@ -384,7 +384,7 @@ class Corredor_:
             assert corredor.codificacion == "UTF-7"
 
         def honrar_config(self):
-            c = Contexto(Config(anula={"correr": {"codificacion": "UTF-7"}}))
+            c = Contexto(Config(anulaciones={"correr": {"codificacion": "UTF-7"}}))
             corredor = _Dummy(c)
             corredor.codificacion_por_defecto = Mock(valor_de_retorno="UTF-not-7")
             corredor.correr(_)
@@ -826,7 +826,7 @@ stderr 25
         # valor cuando no hay problema" y "planteado como/adjunto a una 
         # excepción cuando hay problema", posiblemente no, complica la forma
         # en que se deben cumplir las API.
-        class resultado_envuelto:
+        class resultado_entornouelto:
             def mayoria_de__atribs_siempre_estan_presentes(self):
                 attrs = ("comando", "shell", "entorno", "stdout", "stderr", "pty")
                 for method in (self._error_normal, self._error_de_centinela):

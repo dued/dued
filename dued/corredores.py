@@ -534,8 +534,8 @@ class Corredor(object):
         """
         opcs = {}
         for clave, valor in six.iteritems(self.contexto.config.correr):
-            tiempoej = kwargs.pop(clave, None)
-            opcs[clave] = valor if tiempoej is None else tiempoej
+            acte = kwargs.pop(clave, None)
+            opcs[clave] = valor if acte is None else acte
         # Extraiga el tiempo de espera de ejecución del comando, que almacena
         # la config en otro lugar, pero solo úselo si realmente está config
         # (compatibilidad con versiones anteriores)

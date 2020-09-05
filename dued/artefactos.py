@@ -23,7 +23,7 @@ NO_DEFAULT = object()
 
 class Artefacto(object):
     """
-    Objeto principal que representa un artefacto ejecutable y su 
+    Objeto nucleo que representa un artefacto ejecutable y su 
     especificación de argumento.
 
     En su mayor parte, este objeto es una cámara de compensación para todos

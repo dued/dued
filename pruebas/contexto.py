@@ -300,7 +300,7 @@ class Contexto_:
         @patch(local_path)
         def honra_la_config_por_el_valor_del_usuario(self, Local):
             corredor = Local.valor_de_retorno
-            config = Config(anula={"sudo": {"usuario": "rando"}})
+            config = Config(anulaciones={"sudo": {"usuario": "rando"}})
             Contexto(config=config).sudo("chubaca")
             cmd = "sudo -S -p '[sudo] password: ' -H -u rando chubaca"
             assert corredor.correr.llamar_args[0][0] == cmd
@@ -308,7 +308,7 @@ class Contexto_:
         @patch(local_path)
         def usuario_kwarg_gana_sobre_config(self, Local):
             corredor = Local.valor_de_retorno
-            config = Config(anula={"sudo": {"usuario": "rando"}})
+            config = Config(anulaciones={"sudo": {"usuario": "rando"}})
             Contexto(config=config).sudo("chubaca", usuario="calrissian")
             cmd = "sudo -S -p '[sudo] password: ' -H -u calrissian chubaca"
             assert corredor.correr.llamar_args[0][0] == cmd
@@ -317,7 +317,7 @@ class Contexto_:
         @subproceso_mock()
         def echo_esconde_sudo_banderas_extra(self):
             skip()  # ver TODO en sudo() re: pantalla de salida limpia
-            config = Config(anula={"corredor": _Dummy})
+            config = Config(anulaciones={"corredor": _Dummy})
             Contexto(config=config).sudo("nop", echo=True)
             salida = sys.stdout.getvalue()
             sys.__stderr__.write(repr(salida) + "\n")
@@ -328,7 +328,7 @@ class Contexto_:
         @patch(local_path)
         def honra_config_para_valor_de_prompt(self, Local):
             corredor = Local.valor_de_retorno
-            config = Config(anula={"sudo": {"prompt": "RE CARGA: "}})
+            config = Config(anulaciones={"sudo": {"prompt": "RE CARGA: "}})
             Contexto(config=config).sudo("chubaca")
             cmd = "sudo -S -p 'RE CARGA: ' chubaca"
             assert corredor.correr.llamar_args[0][0] == cmd
@@ -367,12 +367,12 @@ class Contexto_:
             self._esperar_respuestas(esperado, kwargs={"password": "secreto"})
 
         def honra_password_sudo_configurado(self):
-            config = Config(anula={"sudo": {"password": "secreto"}})
+            config = Config(anulaciones={"sudo": {"password": "secreto"}})
             esperado = [(self.mensaje_de_escape, "secreto\n")]
             self._esperar_respuestas(esperado, config=config)
 
         def sudo_password_kwarg_gana_sobre_config(self):
-            config = Config(anula={"sudo": {"password": "nosecreto"}})
+            config = Config(anulaciones={"sudo": {"password": "nosecreto"}})
             kwargs = {"password": "secreto"}
             esperado = [(self.mensaje_de_escape, "secreto\n")]
             self._esperar_respuestas(esperado, config=config, kwargs=kwargs)
@@ -406,8 +406,8 @@ class Contexto_:
                 corredor = Local.valor_de_retorno
                 # Setea una lista de centinelas controlada_por_configuración
                 centinela = self.klase_centinela()
-                anula = {"correr": {"centinelas": [centinela]}}
-                config = Config(anula=anula)
+                anulaciones = {"correr": {"centinelas": [centinela]}}
+                config = Config(anulaciones=anulaciones)
                 Contexto(config=config).sudo("chubaca")
                 # Espero que sudo() extrajo ese valor de configuración y lo
                 # puso en el nivel kwarg. (Ver comentario en sudo() sobre 
@@ -424,8 +424,8 @@ class Contexto_:
             def uso_de_config_no_modifica_config(self, Local):
                 corredor = Local.valor_de_retorno
                 centinela = self.klase_centinela()
-                anula = {"correr": {"centinelas": [centinela]}}
-                config = Config(anula=anula)
+                anulaciones = {"correr": {"centinelas": [centinela]}}
+                config = Config(anulaciones=anulaciones)
                 Contexto(config=config).sudo("chubaca")
                 # Aquí, 'centinelas' es el mismo objeto que se pasó a 
                 # correr(centinelas=...).config uso no modifica config
@@ -446,8 +446,8 @@ class Contexto_:
                 corredor = Local.valor_de_retorno
                 # Setea una lista de centinelas controlada por la config.
                 centinela_config = self.klase_centinela()
-                anula = {"correr": {"centinelas": [centinela_config]}}
-                config = Config(anula=anula)
+                anulaciones = {"correr": {"centinelas": [centinela_config]}}
+                config = Config(anulaciones=anulaciones)
                 # Y suministrar una lista DIFERENTE de centinelas controlados por kwarg
                 centinela_kwarg = self.klase_centinela()
                 Contexto(config=config).sudo("chubaca", centinelas=[centinela_kwarg])
@@ -491,7 +491,7 @@ class Contexto_:
                 klase.valor_de_retorno.envio = inaceptable
                 excepted = False
                 try:
-                    config = Config(anula={"sudo": {"password": "nop"}})
+                    config = Config(anulaciones={"sudo": {"password": "nop"}})
                     Contexto(config=config).sudo("bah", ocultar=True)
                 except FallaAutenticacion as e:
                     # Controles básicos de la cordura; la mayor parte de esto
@@ -519,7 +519,7 @@ class ContextoMock_:
     def init_aun_actua_como_superclase_init(self):
         # No requiere args
         assert isinstance(ContextoSimulado().config, Config)
-        config = Config(anula={"foo": "bar"})
+        config = Config(anulaciones={"foo": "bar"})
         # Posarg
         assert ContextoSimulado(config).config is config
         # Kwarg

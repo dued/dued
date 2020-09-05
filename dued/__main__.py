@@ -1,3 +1,3 @@
-from dued.principal import programa
+from dued.main import programa
 
 programa.correr()

@@ -21,7 +21,7 @@ from dued import (
     Artefacto,
     SalidaInesperada,
 )
-from dued import principal
+from dued import main
 from dued.util import cd
 from dued.config import fusionar_dics
 
@@ -250,8 +250,8 @@ class Programa_:
         def la_clase_ejecutor_se_puede_reemplazada_por_una_cadena_configurada(self):
             class ExecutorOverridingConfig(Config):
                 @staticmethod
-                def predeterminados_globales():
-                    defaults = Config.predeterminados_globales()
+                def global_defaults():
+                    defaults = Config.global_defaults()
                     ruta = "ejecutor_personalizado.EjecutorPersonalizado"
                     fusionar_dics(defaults, {"artefactos": {"clase_ejecutor": ruta}})
                     return defaults
@@ -588,7 +588,7 @@ Opciones principales:
 
 """.lstrip()
                 for bandera in ["-h", "--help"]:
-                    confirmar(bandera, salida=esperado, programa=principal.programa)
+                    confirmar(bandera, salida=esperado, programa=main.programa)
 
             def la_ayuda_del_espacio_de_nombres_incluye_una_lista_de_subcomandos(self):
                 t1, t2 = Artefacto(Mock()), Artefacto(Mock())
@@ -1304,12 +1304,12 @@ Default 'fabric' artefacto: .all
         class acte:     # Archivo de config en tiempoe jecucion
             def se_puede_configurar_a_traves_de_opciones_cli(self):
                 with cd("configs"):
-                    confirmar("-c tiempoej -f yaml/dued.yaml miartefacto")
+                    confirmar("-c acte -f yaml/dued.yaml miartefacto")
 
             def se_puede_configurar_via_vEnt(self, restablecer_entorno):
                 os.environ["DUED_ACTE"] = "yaml/dued.yaml"
                 with cd("configs"):
-                    confirmar("-c tiempoej miartefacto")
+                    confirmar("-c acte miartefacto")
 
             def opcion_cli_gana_sobre_vEnt(self, restablecer_entorno):
                 # Configure la variable de entorno para cargar la configuración
@@ -1322,7 +1322,7 @@ Default 'fabric' artefacto: .all
                     # Pero ejecute la prueba por defecto artefacto, que 
                     # espera una cadena "yaml". Si ganaba la ver  entorno,
                     # esto explotaría.
-                    confirmar("-c tiempoej -f yaml/dued.yaml miartefacto")
+                    confirmar("-c acte -f yaml/dued.yaml miartefacto")
 
         def dedup_de_artefactos_honra_la_configuracion(self):
             # Un poco-corta duplica algunas pruebas en ejecutor.py, pero eh.
@@ -1340,7 +1340,7 @@ post2
 post2
 """.lstrip(),
                 )
-                # Marcas de bandera en tiempoej
+                # Marcas de bandera en acte
                 confirmar(
                     "-c integracion -f dedupe.yaml --no-dedupe biz",
                     salida="""
@@ -1376,7 +1376,7 @@ post2
             # NOTE: checar-ocultar hará kaboom si el correr.ocultar de su 
             # contexto no está establecido en True (por defecto False).
             class MiConf(Config):
-                prefijo_de_entorno = "MIAPP"
+                entorno_prefijo = "MIAPP"
 
             p = Programa(clase_config=MiConf)
             p.correr("du -c contextualizado checar-ocultar")

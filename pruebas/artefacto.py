@@ -218,7 +218,7 @@ class Artefacto_:
 
             self.artefacto = foo
 
-        def llamada_dunder_envuelve_la_llamada_del_cuerpo(self):
+        def llamada_dunder_entornouelve_la_llamada_del_cuerpo(self):
             contexto = Contexto()
             assert self.artefacto(contexto) == 5
 

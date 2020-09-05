@@ -251,9 +251,9 @@ class Coleccion(object):
         :param artefacto: El objeto `.Artefacto` para agregar a esta colección.
 
         :param nombre:
-            Nombre de cadena opcional para enlazar (anula el atributo ``nombre``
-            autodefinido del artefacto y/o cualquier identificador de Python
-            (es decir, ``.nombre_de_func``).
+            Nombre de cadena opcional al que enlazar (reemplaza el atributo
+            autodefinido ``nombre`` del artefacto y/o cualquier identificador
+            de Python (es decir, ``.nombre_de_func``).
 
         :param alias:
             Iterable opcional de nombres adicionales para vincular el artefacto 

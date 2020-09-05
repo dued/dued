@@ -22,12 +22,12 @@ from _util import saltar_si_es_windows, soporte
 marcapytest = pytest.mark.usefixtures("integracion")
 
 
-CONFIGURAR_RUTA = "configs"
+CONFIGS_RUTA = "configs"
 TIPOS = ("yaml", "yml", "json", "python")
 
 
 def _carga(kwarg, tipo_, **kwargs):
-    ruta = join(CONFIGURAR_RUTA, tipo_ + "/")
+    ruta = join(CONFIGS_RUTA, tipo_ + "/")
     kwargs[kwarg] = ruta
     return Config(**kwargs)
 
@@ -44,7 +44,7 @@ class Config_:
                 class MiConf(Config):
                     prefijo = "otro"
 
-                MiConf(prefijo_de_sistema="dir/")
+                MiConf(sistema_prefijo="dir/")
                 cargar_yaml.assert_cualquier_llamada("dir/otro.yaml")
 
             def informa_prefijo_var_ent(self):
@@ -54,7 +54,7 @@ class Config_:
                     prefijo = "otro"
 
                 c = MiConf(defaults={"foo": "nobar"})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert c.foo == "bar"
 
         class prefijo_de_archivo:
@@ -66,24 +66,24 @@ class Config_:
                 class MiConf(Config):
                     prefijo_de_archivo = "otro"
 
-                MiConf(prefijo_de_sistema="dir/")
+                MiConf(sistema_prefijo="dir/")
                 cargar_yaml.assert_cualquier_llamada("dir/otro.yaml")
 
-        class prefijo_de_entorno:
+        class entorno_prefijo:
             def pordefecto_a_None(self):
-                assert Config().prefijo_de_entorno is None
+                assert Config().entorno_prefijo is None
 
             def informa_var_ent_cargados(self):
                 os.environ["OTRO_FOO"] = "bar"
 
                 class MiConf(Config):
-                    prefijo_de_entorno = "otro"
+                    entorno_prefijo = "otro"
 
                 c = MiConf(defaults={"foo": "nobar"})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert c.foo == "bar"
 
-    class predeterminados_globales:
+    class global_defaults:
         @saltar_si_es_windows
         def ajustes_basicos(self):
             # Solo un resumen de lo que debería ser la configuración de la 
@@ -126,7 +126,7 @@ class Config_:
                 },
                 "tiempo_de_descanso": {"comando": None},
             }
-            assert Config.predeterminados_globales() == esperado
+            assert Config.global_defaults() == esperado
 
     class init:
         "__init__"
@@ -138,7 +138,7 @@ class Config_:
         def configurar_el_prefijo_de_ubicacion_global(self, cargar_yaml):
             # ¿Esto es un poco miedoso pero más útil que simplemente replicar
             # la misma prueba más abajo?
-            Config(prefijo_de_sistema="bah/")
+            Config(sistema_prefijo="bah/")
             cargar_yaml.assert_cualquier_llamada("bah/dued.yaml")
 
         @saltar_si_es_windows
@@ -151,7 +151,7 @@ class Config_:
 
         @patch.object(Config, "_cargar_yaml")
         def configura_prefijo_de_ubic_del_usuario(self, cargar_yaml):
-            Config(prefijo_de_usuario="cualquier/")
+            Config(ususario_prefijo="cualquier/")
             cargar_yaml.assert_cualquier_llamada("cualquier/dued.yaml")
 
         @patch.object(Config, "_cargar_yaml")
@@ -166,7 +166,7 @@ class Config_:
 
         @patch.object(Config, "_cargar_yaml")
         def configure_ruta_al_acte(self, cargar_yaml):
-            Config(ruta_acte="alguna/ruta.yaml").cargar_acte()
+            Config(acte_ruta="alguna/ruta.yaml").cargar_acte()
             cargar_yaml.assert_cualquier_llamada("alguna/ruta.yaml")
 
         def acepta_valores_pordefecto_dict_kwarg(self):
@@ -177,10 +177,10 @@ class Config_:
             c = Config({"nuevo": "datos", "correr": {"ocultar": True}})
             assert c.correr.ocultar is True  # default es False
             assert c.correr.alarma is False  # en valores predet. globales, intactos
-            assert c.nuevo == "datos"  # datos solo presentes en la capa de anulación
+            assert c.nuevo == "datos"  # datos solo presentes al nivel anulaciones
 
         def anula_el_dict_es_ademas_un_kwarg(self):
-            c = Config(anula={"correr": {"ocultar": True}})
+            c = Config(anulaciones={"correr": {"ocultar": True}})
             assert c.correr.ocultar is True
 
         @patch.object(Config, "cargar_sistema")
@@ -242,7 +242,7 @@ No se encontró ningún atributo o clave de configuración para 'nop'
 
 Claves válidas: ['correr', 'corredores', 'sudo', 'artefactos', 'tiempo_de_descanso']
 
-Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefijo_de_archivo', 'datos_desde', 'predeterminados_globales', '_cargar_archivo_de_conf_base', 'cargar_coleccion', 'cargar_defaults', 'cargar_anulaciones', 'cargar_proyecto', 'cargar_acte', 'cargar_ent_de_shell', 'cargar_sistema', 'cargar_usuario', 'combinar', 'pop', 'popitem', 'prefijo', 'setea_ubic_del_py', 'setea_ruta_del_acte', 'setdefault', 'actualizar']
+Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_de_archivo', 'datos_desde', 'global_defaults', '_cargar_archivo_de_conf_base', 'cargar_coleccion', 'cargar_defaults', 'cargar_anulaciones', 'cargar_proyecto', 'cargar_acte', 'cargar_entorno_shell', 'cargar_sistema', 'cargar_usuario', 'combinar', 'pop', 'popitem', 'prefijo', 'setea_ubic_del_py', 'setea_ruta_del_acte', 'setdefault', 'actualizar']
 """.strip()  # noqa
                 assert str(e) == esperado
             else:
@@ -252,8 +252,8 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             # Asegura que las claves anidadas se fusionen profundamente
             # en lugar de superficialmente.
             defaults = {"foo": {"bar": "baz"}}
-            anula = {"foo": {"nobar": "nobaz"}}
-            c = Config(defaults=defaults, anula=anula)
+            anulaciones = {"foo": {"nobar": "nobaz"}}
+            c = Config(defaults=defaults, anulaciones=anulaciones)
             assert c.foo.nobar == "nobaz"
             assert c.foo.bar == "baz"
 
@@ -281,7 +281,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             assert list(c.keys()) == ["foo"]
             assert list(c.values()) == ["bar"]
 
-        class carga_en_tiempoej_defaults_y_anulaciones:
+        class carga_en_acte_defaults_y_anulaciones:
             def defaults_se_pueden_dar_via_metodo(self):
                 c = Config()
                 assert "foo" not in c
@@ -299,7 +299,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                 c = Config(defaults={"foo": "bar"})
                 assert c.foo == "bar"  # defaults level
                 c.cargar_anulaciones({"foo": "nobar"})
-                assert c.foo == "nobar"  # anula level
+                assert c.foo == "nobar"  # nivel anulaciones
 
             def anulaciones_pueden_omitir_la_fusion(self):
                 c = Config()
@@ -534,13 +534,13 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             # NOTE: usando lento = True para evitar la carga automática y
             # poder probar que cargar_sistema() funciona.
             for tipo_ in TIPOS:
-                config = _carga("prefijo_de_sistema", tipo_, lento=True)
+                config = _carga("sistema_prefijo", tipo_, lento=True)
                 assert "exterior" not in config
                 config.cargar_sistema()
                 assert config.exterior.interior.hurra == tipo_
 
         def sistema_puede_omitir_la_combinacion(self):
-            config = _carga("prefijo_de_sistema", "yml", lento=True)
+            config = _carga("sistema_prefijo", "yml", lento=True)
             assert "exterior" not in config._sistema
             assert "exterior" not in config
             config.cargar_sistema(combinar=False)
@@ -554,13 +554,13 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             # NOTE: usando lento = True para evitar la carga automática para
             # que podamos probar que cargar_usuario() funciona.
             for tipo_ in TIPOS:
-                config = _carga("prefijo_de_usuario", tipo_, lento=True)
+                config = _carga("ususario_prefijo", tipo_, lento=True)
                 assert "exterior" not in config
                 config.cargar_usuario()
                 assert config.exterior.interior.hurra == tipo_
 
         def usuario_puede_omitir_la_combinacion(self):
-            config = _carga("prefijo_de_usuario", "yml", lento=True)
+            config = _carga("ususario_prefijo", "yml", lento=True)
             assert "exterior" not in config._ususario
             assert "exterior" not in config
             config.cargar_usuario(combinar=False)
@@ -572,14 +572,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def especifico_del_py(self):
             "Local-to-project conf files"
             for tipo_ in TIPOS:
-                c = Config(dir_de_py=join(CONFIGURAR_RUTA, tipo_))
+                c = Config(dir_de_py=join(CONFIGS_RUTA, tipo_))
                 assert "exterior" not in c
                 c.cargar_proyecto()
                 assert c.exterior.interior.hurra == tipo_
 
         def py_puede_omitir_la_combinacion(self):
             config = Config(
-                dir_de_py=join(CONFIGURAR_RUTA, "yml"), lento=True
+                dir_de_py=join(CONFIGS_RUTA, "yml"), lento=True
             )
             assert "exterior" not in config._py
             assert "exterior" not in config
@@ -591,7 +591,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
 
         def no_carga_archivo_especifico_del_py_si_no_proporciona_la_ubic_del_py(self):
             c = Config()
-            assert c._ruta_del_py is None
+            assert c._proyecto_ruta is None
             c.cargar_proyecto()
             assert list(c._py.keys()) == []
             defaults = ["artefactos", "correr", "corredores", "sudo", "tiempo_de_descanso"]
@@ -600,18 +600,18 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def ubic_del_py_se_puede_establecer_despues_de_init(self):
             c = Config()
             assert "exterior" not in c
-            c.setea_ubic_del_py(join(CONFIGURAR_RUTA, "yml"))
+            c.setea_ubic_del_py(join(CONFIGS_RUTA, "yml"))
             c.cargar_proyecto()
             assert c.exterior.interior.hurra == "yml"
 
         def config_de_acte_via_bandera_cli(self):
-            c = Config(ruta_acte=join(CONFIGURAR_RUTA, "yaml", "dued.yaml"))
+            c = Config(acte_ruta=join(CONFIGS_RUTA, "yaml", "dued.yaml"))
             c.cargar_acte()
             assert c.exterior.interior.hurra == "yaml"
 
         def tiempoej_puede_omitir_la_combinacion(self):
-            ruta = join(CONFIGURAR_RUTA, "yaml", "dued.yaml")
-            config = Config(ruta_acte=ruta, lento=True)
+            ruta = join(CONFIGS_RUTA, "yaml", "dued.yaml")
+            config = Config(acte_ruta=ruta, lento=True)
             assert "exterior" not in config._acte
             assert "exterior" not in config
             config.cargar_acte(combinar=False)
@@ -622,13 +622,13 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
 
         @raises(TipoDeArchivoDesconocido)
         def sufijo_desconocido_en_ruta_al_acte_genera_un_error_util(self):
-            c = Config(ruta_acte=join(CONFIGURAR_RUTA, "tuerca.ini"))
+            c = Config(acte_ruta=join(CONFIGS_RUTA, "tuerca.ini"))
             c.cargar_acte()
 
         def modulos_Python_no_cargan_vars_especiales(self):
             "Los módulos de Python no cargan vars especiales"
             # Pida prestado el módulo Python de otra prueba.
-            c = _carga("prefijo_de_sistema", "python")
+            c = _carga("sistema_prefijo", "python")
             # Prueba de cordura que funciona en minúsculas
             assert c.exterior.interior.hurra == "python"
             # Prueba real de que se eliminan los elementos integrados, etc.
@@ -684,8 +684,8 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def comparacion_mira_la_config_combinada(self):
             c1 = Config(defaults={"foo": {"bar": "biz"}})
             # Valores predeterminados vacíos para suprimir 
-            # predeterminados_globales
-            c2 = Config(defaults={}, anula={"foo": {"bar": "biz"}})
+            # global_defaults
+            c2 = Config(defaults={}, anulaciones={"foo": {"bar": "biz"}})
             assert c1 is not c2
             assert c1._defaults != c2._defaults
             assert c1 == c2
@@ -704,45 +704,45 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def caso_base_predeterminado_es_el_prefijo_dued(self):
             os.environ["DUED_FOO"] = "bar"
             c = Config(defaults={"foo": "nobar"})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.foo == "bar"
 
         def ajustes_no_predeclarados_no_se_consumen(self):
             os.environ["DUED_HOLA"] = "¿soy yo a quien estás buscando?"
             c = Config()
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert "HOLA" not in c
             assert "hola" not in c
 
         def guionbajo_nivel_superior(self):
             os.environ["DUED_FOO_BAR"] = "biz"
             c = Config(defaults={"foo_bar": "nobiz"})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.foo_bar == "biz"
 
         def guionesbajos_anidados(self):
             os.environ["DUED_FOO_BAR"] = "biz"
             c = Config(defaults={"foo": {"bar": "nobiz"}})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.foo.bar == "biz"
 
         def ambos_tipos_de_guiones_bajos_mezclados(self):
             os.environ["DUED_FOO_BAR_BIZ"] = "baz"
             c = Config(defaults={"foo_bar": {"biz": "nobaz"}})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.foo_bar.biz == "baz"
 
         @raises(VarEntAmbigua)
         def guiones_bajos_ambiguos_no_adivina(self):
             os.environ["DUED_FOO_BAR"] = "biz"
             c = Config(defaults={"foo_bar": "wat", "foo": {"bar": "huh"}})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
 
         class conversion_de_tipos:
             def cadenas_reemplazadas_por_el_valor_entorno(self):
                 os.environ["DUED_FOO"] = u"mivalor"
                 c = Config(defaults={"foo": "miviejovalor"})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert c.foo == u"mivalor"
                 assert isinstance(c.foo, six.text_type)
 
@@ -753,14 +753,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                     return
                 os.environ["DUED_FOO"] = "miunicode"
                 c = Config(defaults={"foo": u"miviejovalor"})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert c.foo == "miunicode"
                 assert isinstance(c.foo, str)
 
             def None_reemplazado(self):
                 os.environ["DUED_FOO"] = "algo"
                 c = Config(defaults={"foo": None})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert c.foo == "algo"
 
             def booleanos(self):
@@ -773,14 +773,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                 ):
                     os.environ["DUED_FOO"] = entrada_
                     c = Config(defaults={"foo": bool()})
-                    c.cargar_ent_de_shell()
+                    c.cargar_entorno_shell()
                     assert c.foo == resultado
 
             def entradas_tipo_booleano_con_valores_pordefecto_no_booleanos(self):
                 for entrada_ in ("0", "1", "", "bah", "false"):
                     os.environ["DUED_FOO"] = entrada_
                     c = Config(defaults={"foo": "bar"})
-                    c.cargar_ent_de_shell()
+                    c.cargar_entorno_shell()
                     assert c.foo == entrada_
 
             def tipos_numericos_se_convierten(self):
@@ -796,7 +796,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                 for old, new_, resultado in pruebas:
                     os.environ["DUED_FOO"] = new_
                     c = Config(defaults={"foo": old()})
-                    c.cargar_ent_de_shell()
+                    c.cargar_entorno_shell()
                     assert c.foo == resultado
 
             def tipos_arbitrarios_tambien_trabajan(self):
@@ -808,7 +808,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
 
                 obj_viejo = Meh()
                 c = Config(defaults={"foo": obj_viejo})
-                c.cargar_ent_de_shell()
+                c.cargar_entorno_shell()
                 assert isinstance(c.foo, Meh)
                 assert c.foo is not obj_viejo
 
@@ -817,7 +817,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                 def _tipo_inconvertible(self, default):
                     os.environ["DUED_FOO"] = "cosas"
                     c = Config(defaults={"foo": default})
-                    c.cargar_ent_de_shell()
+                    c.cargar_entorno_shell()
 
                 def listas(self):
                     self._tipo_inconvertible(["a", "lista"])
@@ -841,81 +841,81 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             assert c.anidado.ajuste == "coleccion"
 
         def coleccion_de_anulaciones_en_todo_el_sistema(self):
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "yaml/"))
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "yaml/"))
             c.cargar_coleccion({"exterior": {"interior": {"hurra": "defaults"}}})
             assert c.exterior.interior.hurra == "yaml"
 
         def usuario_anula_todo_el_sistema(self):
             c = Config(
-                prefijo_de_sistema=join(CONFIGURAR_RUTA, "yaml/"),
-                prefijo_de_usuario=join(CONFIGURAR_RUTA, "json/"),
+                sistema_prefijo=join(CONFIGS_RUTA, "yaml/"),
+                ususario_prefijo=join(CONFIGS_RUTA, "json/"),
             )
             assert c.exterior.interior.hurra == "json"
 
         def usuario_anula_la_colección(self):
-            c = Config(prefijo_de_usuario=join(CONFIGURAR_RUTA, "json/"))
+            c = Config(ususario_prefijo=join(CONFIGS_RUTA, "json/"))
             c.cargar_coleccion({"exterior": {"interior": {"hurra": "defaults"}}})
             assert c.exterior.interior.hurra == "json"
 
         def proyecto_anula_al_usuario(self):
             c = Config(
-                prefijo_de_usuario=join(CONFIGURAR_RUTA, "json/"),
-                dir_de_py=join(CONFIGURAR_RUTA, "yaml"),
+                ususario_prefijo=join(CONFIGS_RUTA, "json/"),
+                dir_de_py=join(CONFIGS_RUTA, "yaml"),
             )
             c.cargar_proyecto()
             assert c.exterior.interior.hurra == "yaml"
 
         def proyecto_anula_todo_el_sistema(self):
             c = Config(
-                prefijo_de_sistema=join(CONFIGURAR_RUTA, "json/"),
-                dir_de_py=join(CONFIGURAR_RUTA, "yaml"),
+                sistema_prefijo=join(CONFIGS_RUTA, "json/"),
+                dir_de_py=join(CONFIGS_RUTA, "yaml"),
             )
             c.cargar_proyecto()
             assert c.exterior.interior.hurra == "yaml"
 
         def proyecto_anula_la_coleecion(self):
-            c = Config(dir_de_py=join(CONFIGURAR_RUTA, "yaml"))
+            c = Config(dir_de_py=join(CONFIGS_RUTA, "yaml"))
             c.cargar_proyecto()
             c.cargar_coleccion({"exterior": {"interior": {"hurra": "defaults"}}})
             assert c.exterior.interior.hurra == "yaml"
 
         def varent_anulan_el_proyecto(self):
             os.environ["dued_OUTER_INNER_HOORAY"] = "entorno"
-            c = Config(dir_de_py=join(CONFIGURAR_RUTA, "yaml"))
+            c = Config(dir_de_py=join(CONFIGS_RUTA, "yaml"))
             c.cargar_proyecto()
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.exterior.interior.hurra == "entorno"
 
         def varent_anulan_al_usuario(self):
             os.environ["dued_OUTER_INNER_HOORAY"] = "entorno"
-            c = Config(prefijo_de_usuario=join(CONFIGURAR_RUTA, "yaml/"))
-            c.cargar_ent_de_shell()
+            c = Config(ususario_prefijo=join(CONFIGS_RUTA, "yaml/"))
+            c.cargar_entorno_shell()
             assert c.exterior.interior.hurra == "entorno"
 
         def varent_anulan_todo_el_sistema(self):
             os.environ["dued_OUTER_INNER_HOORAY"] = "entorno"
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "yaml/"))
-            c.cargar_ent_de_shell()
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "yaml/"))
+            c.cargar_entorno_shell()
             assert c.exterior.interior.hurra == "entorno"
 
         def varent_anulan_la_coleccion(self):
             os.environ["dued_OUTER_INNER_HOORAY"] = "entorno"
             c = Config()
             c.cargar_coleccion({"exterior": {"interior": {"hurra": "defaults"}}})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.exterior.interior.hurra == "entorno"
 
         def tiempoej_anulan_varent(self):
             os.environ["dued_OUTER_INNER_HOORAY"] = "entorno"
-            c = Config(ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"))
+            c = Config(acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"))
             c.cargar_acte()
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             assert c.exterior.interior.hurra == "json"
 
         def tiempoej_anulan_proyecto(self):
             c = Config(
-                ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"),
-                dir_de_py=join(CONFIGURAR_RUTA, "yaml"),
+                acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"),
+                dir_de_py=join(CONFIGS_RUTA, "yaml"),
             )
             c.cargar_acte()
             c.cargar_proyecto()
@@ -923,22 +923,22 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
 
         def tiempoej_anulan_ususario(self):
             c = Config(
-                ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"),
-                prefijo_de_usuario=join(CONFIGURAR_RUTA, "yaml/"),
+                acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"),
+                ususario_prefijo=join(CONFIGS_RUTA, "yaml/"),
             )
             c.cargar_acte()
             assert c.exterior.interior.hurra == "json"
 
         def tiempoej_anula_todo_el_sistema(self):
             c = Config(
-                ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"),
-                prefijo_de_sistema=join(CONFIGURAR_RUTA, "yaml/"),
+                acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"),
+                sistema_prefijo=join(CONFIGS_RUTA, "yaml/"),
             )
             c.cargar_acte()
             assert c.exterior.interior.hurra == "json"
 
         def tiempoej_anula_coleccion(self):
-            c = Config(ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"))
+            c = Config(acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"))
             c.cargar_coleccion({"exterior": {"interior": {"hurra": "defaults"}}})
             c.cargar_acte()
             assert c.exterior.interior.hurra == "json"
@@ -947,14 +947,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             "Las anulaciones basadas en CLI ganan frente a todas las demás capas"
             # TODO: expandirse a pruebas más explícitas como las anteriores? bah
             c = Config(
-                anula={"exterior": {"interior": {"hurra": "anula"}}},
-                ruta_acte=join(CONFIGURAR_RUTA, "json", "dued.json"),
+                anulaciones={"exterior": {"interior": {"hurra": "anulaciones"}}},
+                acte_ruta=join(CONFIGS_RUTA, "json", "dued.json"),
             )
             c.cargar_acte()
-            assert c.exterior.interior.hurra == "anula"
+            assert c.exterior.interior.hurra == "anulaciones"
 
         def yaml_evita_yml_json_o_python(self):
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "los-cuatro/"))
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "los-cuatro/"))
             assert "solo-json" not in c
             assert "solo_python" not in c
             assert "solo-yml" not in c
@@ -962,14 +962,14 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             assert c.shared == "yaml-valor"
 
         def yml_evita_json_o_python(self):
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "tres-de-ellos/"))
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "tres-de-ellos/"))
             assert "solo-json" not in c
             assert "solo_python" not in c
             assert "solo-yml" in c
             assert c.shared == "yml-valor"
 
         def json_evita_python(self):
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "json-y-python/"))
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "json-y-python/"))
             assert "solo_python" not in c
             assert "solo-json" in c
             assert c.shared == "json-valor"
@@ -978,33 +978,33 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def conserva_miembros_basicos(self):
             c1 = Config(
                 defaults={"clave": "default"},
-                anula={"clave": "anular"},
-                prefijo_de_sistema="global",
-                prefijo_de_usuario="usuario",
+                anulaciones={"clave": "anular"},
+                sistema_prefijo="global",
+                ususario_prefijo="usuario",
                 dir_de_py="proyecto",
-                ruta_acte="tiempoej.yaml",
+                acte_ruta="acte.yaml",
             )
             c2 = c1.clonar()
             # NOTE: esperando valores por defecto idénticos también pruebas 
             # implícitamente que clonar() pasa en defaults= en lugar de hacer
             # un init + copy vacío. (Cuando ese no es el caso, terminamos con
-            # predeterminados_globales() que se vuelve a ejecutar y se vuelve
+            # global_defaults() que se vuelve a ejecutar y se vuelve
             # a agregar a _defaults ...)
             assert c2._defaults == c1._defaults
             assert c2._defaults is not c1._defaults
             assert c2._anula == c1._anula
             assert c2._anula is not c1._anula
-            assert c2._prefijo_del_sistema == c1._prefijo_del_sistema
-            assert c2._prefijo_del_usuario == c1._prefijo_del_usuario
-            assert c2._prefijo_del_proyecto == c1._prefijo_del_proyecto
+            assert c2._sistema_prefijo == c1._sistema_prefijo
+            assert c2._ususario_prefijo == c1._ususario_prefijo
+            assert c2._proyecto_prefijo == c1._proyecto_prefijo
             assert c2.prefijo == c1.prefijo
             assert c2.prefijo_de_archivo == c1.prefijo_de_archivo
-            assert c2.prefijo_de_entorno == c1.prefijo_de_entorno
+            assert c2.entorno_prefijo == c1.entorno_prefijo
             assert c2._ruta_al_acte == c1._ruta_al_acte
 
         def conserva_config_combinada(self):
             c = Config(
-                defaults={"clave": "default"}, anula={"clave": "anular"}
+                defaults={"clave": "default"}, anulaciones={"clave": "anular"}
             )
             assert c.clave == "anular"
             assert c._defaults["clave"] == "default"
@@ -1014,7 +1014,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             assert c2._anula["clave"] == "anular"
 
         def conserva_datos_del_archivo(self):
-            c = Config(prefijo_de_sistema=join(CONFIGURAR_RUTA, "yaml/"))
+            c = Config(sistema_prefijo=join(CONFIGS_RUTA, "yaml/"))
             assert c.exterior.interior.hurra == "yaml"
             c2 = c.clonar()
             assert c2.exterior.interior.hurra == "yaml"
@@ -1026,8 +1026,8 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             valor_de_retorno={"exterior": {"interior": {"hurra": "yaml"}}},
         )
         def no_recarga_los_datos_del_archivo(self, cargar_yaml):
-            ruta = join(CONFIGURAR_RUTA, "yaml/")
-            c = Config(prefijo_de_sistema=ruta)
+            ruta = join(CONFIGS_RUTA, "yaml/")
+            c = Config(sistema_prefijo=ruta)
             c2 = c.clonar()
             assert c2.exterior.interior.hurra == "yaml"
             # Manera mala de decir "solo me llamaron con esta invocación 
@@ -1045,7 +1045,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
         def conserva_data_de_entorno(self):
             os.environ["DUED_FOO"] = "bar"
             c = Config(defaults={"foo": "nobar"})
-            c.cargar_ent_de_shell()
+            c.cargar_entorno_shell()
             c2 = c.clonar()
             assert c2.foo == "bar"
 
@@ -1097,21 +1097,21 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
                 # NOTE: Esto es realmente sólo comportamiento básico del clonar.
                 class MiConfig(Config):
                     @staticmethod
-                    def predeterminados_globales():
-                        orig = Config.predeterminados_globales()
+                    def global_defaults():
+                        orig = Config.global_defaults()
                         orig["nuevo"] = {"datos": "oh"}
                         return orig
 
                 c = Config(defaults={"otro": {"datos": "hola"}})
-                c["tiempoej"] = {"modificacion": "que onda"}
+                c["acte"] = {"modificacion": "que onda"}
                 c2 = c.clonar(dentro=MiConfig)
                 # Nuevos datos predeterminados de MiConfig presente
                 assert c2.nuevo.datos == "oh"
                 # Así como los datos predeterminados antiguos de la instancia
                 # clonada
                 assert c2.otro.datos == "hola"
-                # Y mods de usuario de tiempoej de la instancia clonada
-                assert c2.tiempoej.modificacion == "que onda"
+                # Y mods de usuario de acte de la instancia clonada
+                assert c2.acte.modificacion == "que onda"
 
         def no_hace_depcopy(self):
             c = Config(
@@ -1151,7 +1151,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'prefijo_de_entorno', 'prefij
             ), err  # noqa
 
     def puede_ser_encurtido(self):
-        c = Config(anula={"foo": {"bar": {"biz": ["baz", "buzz"]}}})
+        c = Config(anulaciones={"foo": {"bar": {"biz": ["baz", "buzz"]}}})
         c2 = pickle.loads(pickle.dumps(c))
         assert c == c2
         assert c is not c2

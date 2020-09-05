@@ -645,7 +645,7 @@ class Collection_:
             # Antes de actualizar la configuración coleccion raiz, refleja el int
             assert self.raiz.configuracion("interior.artefacto")["foo"] == "interior"
             self.raiz.configurar({"foo": "exterior"})
-            # Después, refleja el exterior (ya que ahora anula)
+            # Después, refleja el exterior (ya que ahora anulaciones)
             assert self.raiz.configuracion("interior.artefacto")["foo"] == "exterior"
 
         def subcolecciones_hermanos_ignoradas(self):

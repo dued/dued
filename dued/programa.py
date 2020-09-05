@@ -263,7 +263,7 @@ class Programa(object):
         :param clase_ejecutor:
             La subclase `.Ejecutor` que se utilizará al ejecutar artefactos.
 
-            Por defecto es `.Ejecutor`; también puede ser anulado en tiempoej
+            Por defecto es `.Ejecutor`; también puede ser anulado en acte
             por la :ref:`sistema de configuración <valores-predeterminados>` y
             su configuración ``artefactos.clase_ejecutor`` (siempre que esa
             configuración no sea ``None``).
@@ -324,9 +324,9 @@ class Programa(object):
         """
         # Ahora que tenemos el resultado de análisis a mano, podemos tomar los
         # bits de configuración restantes:
-        # - configurar tiempoej, que depende de la bandera tiempoej/var entorno
-        # - el nivel de configuración anula, ya que está compuesto por datos de
-        #   la bandera tiempoej
+        # - configurar acte, que depende de la bandera acte/var entorno
+        # - el nivel de configuración anulaciones, ya que está compuesto por datos de
+        #   la bandera acte
         # NOTE: solo complete los valores que alterarían el comportamiento, 
         # de lo contrario quiero que se cumplan los valores predeterminados.
         correr = {}
@@ -347,18 +347,18 @@ class Programa(object):
         comando = self.args["tiempofuera"].valor
         if comando:
             tiempo_de_descanso["comando"] = comando
-        # Manejar "completar los valores de configuración al inicio de tiempoej",
+        # Manejar "completar los valores de configuración al inicio de acte",
         # que por ahora es solo la contraseña de sudo
         sudo = {}
         if self.args["prompt-sudo"].valor:
             prompt = "Valor de configuración 'sudo.password' deseado:"
             sudo["password"] = getpass.getpass(prompt)
-        anula = dict(correr=correr, artefactos=artefactos, sudo=sudo, tiempo_de_descanso=tiempo_de_descanso)
-        self.config.cargar_anulaciones(anula, combinar=False)
-        ruta_acte = self.args.config.valor
-        if ruta_acte is None:
-            ruta_acte = os.environ.get("DUED_CONFIG_TIEMPOEJ", None)
-        self.config.setea_ruta_del_acte(ruta_acte)
+        anulaciones = dict(correr=correr, artefactos=artefactos, sudo=sudo, tiempo_de_descanso=tiempo_de_descanso)
+        self.config.cargar_anulaciones(anulaciones, combinar=False)
+        acte_ruta = self.args.config.valor
+        if acte_ruta is None:
+            acte_ruta = os.environ.get("DUED_CONFIG_TIEMPOEJ", None)
+        self.config.setea_ruta_del_acte(acte_ruta)
         self.config.cargar_acte(combinar=False)
         if combinar:
             self.config.combinar()
@@ -388,7 +388,7 @@ class Programa(object):
         try:
             # Cree una configuración inicial, que contendrá los valores por 
             # defecto y los valores de la mayoría de las ubicaciones de los
-            # archivos de config (todos menos tiempoej.) Se utiliza para 
+            # archivos de config (todos menos acte.) Se utiliza para 
             # informar el comportamiento de carga y análisis.
             self.crear_config()
             # Analizar el ARGV dado con nuestra maquinaria de análisis CLI, lo
@@ -405,7 +405,7 @@ class Programa(object):
             # Fin del análisis (típicamente cosas de rescate como --lista, --help)
             self.limpiar_analisis()
             # Actualice la config anterior con nuevos valores del paso de
-            # análisis: contenido del archivo de configuración de tiempoej y
+            # análisis: contenido del archivo de configuración de acte y
             # anulaciones derivadas de la bandera (por ejemplo, para las 
             # opciones de eco, alarma, etc. de correr()).
             self.actualizar_config()

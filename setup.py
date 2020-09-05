@@ -44,8 +44,8 @@ setup(
     include_package_data=True,
     entry_points={
         "console_scripts": [
-            "dued = dued.principal:programa.correr",
-            "du = dued.principal:programa.correr",
+            "dued = dued.main:programa.correr",
+            "du = dued.main:programa.correr",
         ]
     },
     classifiers=[

@@ -17,7 +17,7 @@ if six.PY3:
     except ImportError:  # PyPy3
         from importlib._bootstrap import _SourceFileLoader as SourceFileLoader
 
-    def cargar_fuente(nombre, ruta):
+    def load_source(nombre, ruta):
         if not os.path.exists(ruta):
             return {}
         return vars(SourceFileLoader("mod", ruta).load_module())
@@ -26,7 +26,7 @@ if six.PY3:
 else:
     import imp
 
-    def cargar_fuente(nombre, ruta):
+    def load_source(nombre, ruta):
         if not os.path.exists(ruta):
             return {}
         return vars(imp.load_source("mod", ruta))
@@ -163,7 +163,7 @@ class DataProxy(object):
 
     def __setitem__(self, clave, valor):
         self._config[clave] = valor
-        self._seguimiento_de_modificacion_de(clave, valor)
+        self._trazar_modificacion_de(clave, valor)
 
     def __getitem__(self, clave):
         return self._get(clave)
@@ -222,7 +222,7 @@ class DataProxy(object):
     def _es_raiz(self):
         return hasattr(self, "_modificar")
 
-    def _seguimiento_de_eliminacion_de(self, clave):
+    def _trazar_eliminacion_de(self, clave):
         # Agarrar el objeto raiz responsable de rastrear las remociones; ya
         # sea la raiz referenciada (si somos una hoja) o nosotros mismos 
         # (si no lo somos). (Los nodos intermedios nunca tienen nada más
@@ -236,7 +236,7 @@ class DataProxy(object):
         if objetivo is not None:
             objetivo._eliminar(getattr(self, "_rutaclave", tuple()), clave)
 
-    def _seguimiento_de_modificacion_de(self, clave, valor):
+    def _trazar_modificacion_de(self, clave, valor):
         objetivo = None
         if self._es_hoja:
             objetivo = self._raiz
@@ -247,7 +247,7 @@ class DataProxy(object):
 
     def __delitem__(self, clave):
         del self._config[clave]
-        self._seguimiento_de_eliminacion_de(clave)
+        self._trazar_eliminacion_de(clave)
 
     def __delattr__(self, nombre):
         # Asegúrese de no estropear la eliminación de atributos verdaderos 
@@ -277,13 +277,13 @@ class DataProxy(object):
         if not clave_existio:
             return ret
         # Aquí, podemos suponer que existió al menos la primera posarg (clave).
-        self._seguimiento_de_eliminacion_de(args[0])
+        self._trazar_eliminacion_de(args[0])
         # En todos los casos, devuelve el valor explotado.
         return ret
 
     def popitem(self):
         ret = self._config.popitem()
-        self._seguimiento_de_eliminacion_de(ret[0])
+        self._trazar_eliminacion_de(ret[0])
         return ret
 
     def setdefault(self, *args):
@@ -298,7 +298,7 @@ class DataProxy(object):
         # usuario debe haber proporcionado un 'default' (si no lo hubiera hecho,
         # se habría exceptuado el setdefault() real anterior).
         clave, default = args
-        self._seguimiento_de_modificacion_de(clave, default)
+        self._trazar_modificacion_de(clave, default)
         return ret
 
     def actualizar(self, *args, **kwargs):
@@ -417,24 +417,24 @@ class Config(DataProxy):
     reemplazados por subclases.
 
     - ``prefijo``: proporciona el valor predeterminado para 
-      ``prefijo_de_archivo`` (directamente) y ``prefijo_de_entorno`` (en 
+      ``prefijo_de_archivo`` (directamente) y ``entorno_prefijo`` (en 
       mayúsculas). Consulte sus  descripciones para obtener más detalles. Su 
       valor por default es ``"dued"``.
     - ``prefijo_de_archivo``: el archivo de configuración 'basename' 
       predeterminado (aunque no es un literal basename; puede contener partes
       de ruta si se desea) que se agrege a los valores configurados de 
-      ``prefijo_de_sistema``, ``prefijo_de_usuario``, etc, para llegar a las
+      ``sistema_prefijo``, ``ususario_prefijo``, etc, para llegar a las
       rutas de archivo finales (pre-extension).
 
       Por lo tanto, de forma predeterminada, una ruta de archivo de 
-      configuración a nivel del sistema concatena el ``prefijo_de_sistema`` de
+      configuración a nivel del sistema concatena el ``sistema_prefijo`` de
       ``/etc/`` con el ``prefijo_de_archivo`` de ``dued`` para llegar a rutas 
       como ``/etc/dued.json``.
 
       Por defecto es ``None``, lo que significa utilizar el valor de 
       ``prefijo``.
 
-    - ``prefijo_de_entorno``: Un prefijo usado (junto con un guión bajo de 
+    - ``entorno_prefijo``: Un prefijo usado (junto con un guión bajo de 
       unión) para determinar qué variables de entorno se cargan como nivel de 
       configuración de var de entorno. Dado que su default es el valor de
       ``prefijo`` en mayúsculas, esto significa que se buscan por defecto
@@ -448,10 +448,10 @@ class Config(DataProxy):
 
     prefijo = "dued"
     prefijo_de_archivo = None
-    prefijo_de_entorno = None
+    entorno_prefijo = None
 
     @staticmethod
-    def predeterminados_globales():
+    def global_defaults():
         """
         Devuelve la configuración básica predeterminada de Dued.
 
@@ -460,7 +460,7 @@ class Config(DataProxy):
         :ref:`valores-predeterminados`.
 
         Las subclases pueden optar por anular este método, llamando a 
-        ``Config.predeterminados_globales`` y aplicando `.fusionar_dics` al
+        ``Config.global_defaults`` y aplicando `.fusionar_dics` al
         resultado, para agregar o modificar estos valores.
 
         .. versionadded:: 1.0
@@ -537,12 +537,12 @@ class Config(DataProxy):
 
     def __init__(
         self,
-        anula=None,
+        anulaciones=None,
         defaults=None,
-        prefijo_de_sistema=None,
-        prefijo_de_usuario=None,
+        sistema_prefijo=None,
+        ususario_prefijo=None,
         dir_de_py=None,
-        ruta_acte=None,
+        acte_ruta=None,
         lento=False,
     ):
         """
@@ -550,14 +550,14 @@ class Config(DataProxy):
 
         :param dict defaults:
             Un dicc que contiene datos de configuración predeterminados (nivel
-            más bajo). Por defecto: predeterminados_globales`.
+            más bajo). Por defecto: global_defaults`.
 
-        :param dict anula:
+        :param dict anulaciones:
             A dict containing nivel-de-anulacion config datos. Default: ``{}``.
             Un dicc que contiene los datos de configuración de 
             nivel-de-anulacion. Predeterminado: ``{}``.
 
-        :param str prefijo_de_sistema:
+        :param str sistema_prefijo:
             Ruta base para la ubicación del archivo de configuración global;
             combinado con el prefijo y los sufijos de archivo para llegar a
             los candidatos de ruta de archivo final.
@@ -565,8 +565,8 @@ class Config(DataProxy):
             Default: ``/etc/`` (por ejemplo, `/etc/dued.yaml`` o 
             ``/etc/dued.json``).
 
-        :param str prefijo_de_usuario:
-            Como ``prefijo_de_sistema`` pero para el archivo config 
+        :param str ususario_prefijo:
+            Como ``sistema_prefijo`` pero para el archivo config 
             por-usuario. Estas variables se unen como cadenas, no mediante
             uniones de estilo-ruta, por lo que pueden contener rutas de 
             archivo parciales; para el archivo config por-usuario, esto a
@@ -580,7 +580,7 @@ class Config(DataProxy):
             actualmente 8como lo carga` .Cargador`). Cuando no está vacío,
             activará la búsqueda de arch. config por proyecto en este dir.
 
-        :param str ruta_acte:
+        :param str acte_ruta:
             Opcional ruta a un archivo de configuración en tiempo de
             ejecución.
 
@@ -600,7 +600,7 @@ class Config(DataProxy):
             ``lento=True`` y no se realiza ninguna carga automática.
             
             .. note::
-                Si da ``default`` y/o ``anula`` como kwargs ``__init__`` en
+                Si da ``default`` y/o ``anulaciones`` como kwargs ``__init__`` en
                 lugar de esperar a usar después `cargar_defaults` o 
                 `cargar_anulaciones`, esos *terminarán* cargados inmediatamente.
 
@@ -612,9 +612,9 @@ class Config(DataProxy):
         # Sufijos de archivos de configuración para buscar, en orden de preferencia.
         self._set(_sufijos_de_archivo=("yaml", "yml", "json", "py"))
 
-        # Valores de configuración predeterminados, normalmente una copia de `predeterminados_globales`.
+        # Valores de configuración predeterminados, normalmente una copia de `global_defaults`.
         if defaults is None:
-            defaults = copiar_dic(self.predeterminados_globales())
+            defaults = copiar_dic(self.global_defaults())
         self._set(_defaults=defaults)
 
         # Datos de configuración controlados por colección, recopilados del 
@@ -623,11 +623,11 @@ class Config(DataProxy):
 
         # Prefijo de ruta buscado para el archivo de configuración del sistema.
         # NOTE: No hay un prefijo de sistema predeterminado en Windows.
-        if prefijo_de_sistema is None and not WINDOWS:
-            prefijo_de_sistema = "/etc/"
-        self._set(_prefijo_del_sistema=prefijo_de_sistema)
+        if sistema_prefijo is None and not WINDOWS:
+            sistema_prefijo = "/etc/"
+        self._set(_sistema_prefijo=sistema_prefijo)
         # Ruta al archivo de configuración del sistema cargado, si lo hubiera.
-        self._set(_ruta_del_sistema=None)
+        self._set(_sistema_ruta=None)
         # Si el archivo de configuración del sistema se ha cargado o no (o 
         # ``None`` si aún no se ha intentado cargar).
         self._set(_sistema_seteado=None)
@@ -635,11 +635,11 @@ class Config(DataProxy):
         self._set(_sistema={})
 
         # Prefijo de ruta buscado para archivos de configuración por usuario.
-        if prefijo_de_usuario is None:
-            prefijo_de_usuario = "~/."
-        self._set(_prefijo_del_usuario=prefijo_de_usuario)
+        if ususario_prefijo is None:
+            ususario_prefijo = "~/."
+        self._set(_ususario_prefijo=ususario_prefijo)
         # Ruta al archivo de configuración de usuario cargado, si lo hubiera.
-        self._set(_ruta_de_ususario=None)
+        self._set(_ususario_ruta=None)
         # Whether the user config file has been loaded or not (or ``None`` if
         # no loading has been attempted yet.)
         # Si el archivo de configuración del usuario se ha cargado o no (o 
@@ -654,24 +654,24 @@ class Config(DataProxy):
         self.setea_ubic_del_py(dir_de_py)
 
         # Entorno variable nombre prefix
-        prefijo_de_entorno = self.prefijo_de_entorno
-        if prefijo_de_entorno is None:
-            prefijo_de_entorno = self.prefijo
-        prefijo_de_entorno = "{}_".format(prefijo_de_entorno.upper())
-        self._set(_prefijo_de_entorno=prefijo_de_entorno)
+        entorno_prefijo = self.entorno_prefijo
+        if entorno_prefijo is None:
+            entorno_prefijo = self.prefijo
+        entorno_prefijo = "{}_".format(entorno_prefijo.upper())
+        self._set(_entorno_prefijo=entorno_prefijo)
         # Config datos loaded from the shell environment.
-        self._set(_env={})
+        self._set(_entorno={})
 
         # Como es posible que desee configurarlo post-inicialización, los 
         # atributos relacionados con el archivo de conf en tiempo de 
         # ejecución(acte) se inicializan o sobrescriben con un método específico.
-        self.setea_ruta_del_acte(ruta_acte)
+        self.setea_ruta_del_acte(acte_ruta)
 
         # anulaciones - nivel de configuración normal más alto. Normalmente
         # se rellena con banderas de línea de comando.
-        if anula is None:
-            anula = {}
-        self._set(_anula=anula)
+        if anulaciones is None:
+            anulaciones = {}
+        self._set(_anula=anulaciones)
 
         # Nivel más alto absoluto: modificaciones del usuario.
         self._set(_modificaciones={})
@@ -718,9 +718,10 @@ class Config(DataProxy):
 
     def cargar_anulaciones(self, datos, combinar=True):
         """
-        Setea o reemplaza el nivel de configuración 'anula', desde ``datos``.
+        Setea o reemplaza el nivel de configuración 'anulaciones', desde ``datos``.
 
-        :param dict datos: Los datos de config se cargar como nivel de anulacion
+        :param dict datos: Los datos de config se carga como nivel de
+            anulaciones
 
         :param bool combinar:
             Ya sea para combinar los datos cargados en la config. central.
@@ -738,7 +739,7 @@ class Config(DataProxy):
         """
         Carga un archivo de config a nivel-sistema, si es posible.
 
-        Chequea la ruta configurada ``_prefijo_del_sistema``, que por 
+        Chequea la ruta configurada ``_sistema_prefijo``, que por 
         defecto es ``/etc``, entonc. cargará archivos como ``/etc/dued.yml``.
 
         :param bool combinar:
@@ -772,7 +773,7 @@ class Config(DataProxy):
         """
         Carga un archivo de config a nivel-proyecto, si es posible.
 
-        Comprueba el valor de ``_prefijo_del_proyecto`` configurado derivado 
+        Comprueba el valor de ``_proyecto_prefijo`` configurado derivado 
         de la ruta dada a `setea_ubic_del_py`, que normalmente se establece en
         el directorio que contiene la colección de artefacto cargada.
 
@@ -807,8 +808,7 @@ class Config(DataProxy):
 
     def cargar_acte(self, combinar=True):
         """
-        Carga un archivo de configuración a nivel de tiempo de ejecución, si
-        se especificó uno.
+        Carga un archivo de configuración a nivel-acte, si se especificó uno.
 
         When the CLI framework creates a `Config`, it sets ``_ruta_al_acte``,
         which is a full ruta to the requested config file. This method 
@@ -826,13 +826,13 @@ class Config(DataProxy):
 
         .. versionadded:: 1.0
         """
-        self._cargar_archivo(prefijo="tiempoej", absoluto=True, combinar=combinar)
+        self._cargar_archivo(prefijo="acte", absoluto=True, combinar=combinar)
 
-    def cargar_ent_de_shell(self):
+    def cargar_entorno_shell(self):
         """
         Cargar valores del entorno de shell.
 
-        `.cargar_ent_de_shell` está diseñado para ejecutarse tarde en el ciclo
+        `.cargar_entorno_shell` está diseñado para ejecutarse tarde en el ciclo
         de vida de un objeto `.Config`, una vez que se hayan cargado todas las
         demás fuentes (como un archivo de config en tiempo de ejecución o 
         config por-colección). La carga desde el shell no es tremendamente 
@@ -851,7 +851,7 @@ class Config(DataProxy):
         debug("Ejecutando pre-combinar para carga de entorno shell...")
         self.combinar()
         debug("Hecho con pre-combinar.")
-        cargador = Entorno(config=self._config, prefijo=self._prefijo_de_entorno)
+        cargador = Entorno(config=self._config, prefijo=self._entorno_prefijo)
         self._set(_varent=cargador.cargar())
         debug("Entorno shell cargado, desencadena la fusión final")
         self.combinar()
@@ -883,14 +883,14 @@ class Config(DataProxy):
         .. versionadded:: 1.0
         """
         # 'Prefijo' para que coincida con los otros conjuntos de atributos
-        prefijo_del_py = None
+        proyecto_prefijo = None
         if ruta is not None:
             # Asegúrese de que el prefijo esté normalizado a una cadena de
             # ruta similar a un directorio
-            prefijo_del_py = join(ruta, "")
-        self._set(_prefijo_del_proyecto=prefijo_del_py)
+            proyecto_prefijo = join(ruta, "")
+        self._set(_proyecto_prefijo=proyecto_prefijo)
         # Ruta al archivo de config por-proyecto cargado, si lo hubiera.
-        self._set(_ruta_del_py=None)
+        self._set(_proyecto_ruta=None)
         # Si el archivo de configuración del proyecto se ha cargado
         # o no (o ``None`` si aún no se ha intentado cargar).
         self._set(_py_seteado=None)
@@ -971,7 +971,7 @@ class Config(DataProxy):
 
     def _cargar_py(self, ruta):
         datos = {}
-        for clave, valor in six.iteritems(cargar_fuente("mod", ruta)):
+        for clave, valor in six.iteritems(load_source("mod", ruta)):
             # Elimine miembros especiales, ya que siempre serán incorporados
             # y otras cosas especiales que un usuario no querrá en su configuración.
             if clave.startswith("__"):
@@ -999,12 +999,12 @@ class Config(DataProxy):
         fusionar_dics(self._config, self._defaults)
         debug("Coleccion-conducida: {!r}".format(self._coleccion))
         fusionar_dics(self._config, self._coleccion)
-        self._fusionar_archivo("sistema", "Todo-el-sistema")
+        self._fusionar_archivo("sistema", "Sistema-completo")
         self._fusionar_archivo("ususario", "Por-usuario")
         self._fusionar_archivo("proyecto", "Por-proyecto")
         debug("Configuración de variable de entorno: {!r}".format(self._varent))
         fusionar_dics(self._config, self._varent)
-        self._fusionar_archivo("tiempoej", "Tiempoej")
+        self._fusionar_archivo("acte", "Tiempoej")
         debug("Anulaciones: {!r}".format(self._anula))
         fusionar_dics(self._config, self._anula)
         debug("Modificaciones: {!r}".format(self._modificaciones))
@@ -1092,24 +1092,24 @@ class Config(DataProxy):
         # Copy/combinar/etc all 'private' datos sources and attributes
         for nombre in """
             coleccion
-            prefijo_de_sistema
-            ruta_del_sist
-            ubic_sistema
+            sistema_prefijo
+            sistema_ruta
+            sistema_ubicado
             sistema
-            prefijo_de_usuario
-            ruta_de_usuario
-            ubic_usuario
+            ususario_prefijo
+            ususario_ruta
+            ususario_ubicado
             usuario
-            prefijo_del_py
-            ruta_del_py
-            ubic_del_py
+            proyecto_prefijo
+            proyecto_ruta
+            proyecto_ubicado
             proyecto
-            prefijo_de_entorno
+            entorno_prefijo
             entorno
-            ruta_acte
-            ubic_acte
-            tiempoej
-            anula
+            acte_ruta
+            acte_ubicado
+            acte
+            anulaciones
             modificaciones
         """.split():
             nombre = "_{}".format(nombre)
@@ -1147,11 +1147,11 @@ class Config(DataProxy):
         :returns: un `dict`.
         """
         # NOTE: debe pasar los valores predeterminados frescos o de lo contrario
-        # se usará predeterminados_globales() en su lugar. Excepto cuando 'dentro' está en
+        # se usará global_defaults() en su lugar. Excepto cuando 'dentro' está en
         # juego, en cuyo caso realmente queremos la unión de los dos.
         nuevos_defaults = copiar_dic(self._defaults)
         if dentro is not None:
-            fusionar_dics(nuevos_defaults, dentro.predeterminados_globales())
+            fusionar_dics(nuevos_defaults, dentro.global_defaults())
         # Los kwargs.
         return dict(
             defaults=nuevos_defaults,

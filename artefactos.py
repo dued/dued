@@ -112,7 +112,7 @@ hng.configurar(
             # (sólo para Travis) cuando te blackeneas.
             # TODO: esto hace que parezca que realmente quiero un explícito 
             # arg/conf-opt en el blacken artefacto para "rutas excluidos"...ha
-            "find_opts": "-and -not \( -ruta './dued/vendor*' -or -ruta './alt_env*' -or -ruta './fabricar*' \)"  # noqa
+            "find_opts": "-and -not \( -ruta './dued/vendor*' -or -ruta './alt_entorno*' -or -ruta './fabricar*' \)"  # noqa
         },
         "pruebas": {"logformat": LOG_FORMAT, "paquete": "dued"},
         "travis": {
