@@ -161,7 +161,7 @@ class Corredor_:
             try:
                 self._corre(_, nope_noway_nohow="as if")
             except TypeError as e:
-                assert "tiene una palabra clave inesperada de argumento" in str(e)
+                assert "tiene una palabra key inesperada de argumento" in str(e)
             else:
                 assert False, "El kwarg no válido de correr() no generó TypeError"
 
@@ -952,7 +952,7 @@ stderr 25
 
         def nada_esta_escrito_a_stdin_pordefecto(self):
             # NOTE: técnicamente, si algún idiota ejecuta las pruebas a mano
-            # y machaca las claves mientras lo hace ... esto fallaría. LOL?
+            # y machaca las keys mientras lo hace ... esto fallaría. LOL?
             # NOTE: esta prueba no parece muy útil pero es a) una prueba de
             # cordura y b) protege contra p. Ej. rompiendo el autoRespondedor
             # de manera que responda a "" o "\n" o etc.
@@ -969,8 +969,8 @@ stderr 25
             :returns: El método simulado ``escribir_proc_stdin`` del corredor.
             """
             centinelas = [
-                Respondedor(patron=clave, respuesta=valor)
-                for clave, valor in iteritems(kwargs.pop("responses"))
+                Respondedor(patron=key, respuesta=valor)
+                for key, valor in iteritems(kwargs.pop("responses"))
             ]
             kwargs["klase"] = klase = self._escribir_stdin_mock()
             corredor = self._corredor(**kwargs)

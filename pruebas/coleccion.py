@@ -215,7 +215,7 @@ class Collection_:
             colecc = Coleccion.del_modulo(load("raiz_explicita"))
             assert "alto-nivel" in colecc.artefactos
             assert "sub-nivel" in colecc.colecciones
-            # La verdadera prueba clave
+            # La verdadera prueba key
             assert "sub-artefacto" not in colecc.artefactos
 
         def permite_que_las_tareas_con_nombres_explícitos_anulen_el_nombre_enlazado(self):
@@ -240,7 +240,7 @@ class Collection_:
                 mod = load("raiz_explicita")
                 mod.hng.configurar(
                     {
-                        "clave": "incorporado",
+                        "key": "incorporado",
                         "otraclave": "yup",
                         "subconfig": {"miclave": "mivalor"},
                     }
@@ -251,14 +251,14 @@ class Collection_:
                     mod,
                     nombre="anular_nombre",
                     config={
-                        "clave": "anular",
+                        "key": "anular",
                         "subconfig": {"miotraclave": "miotrovalor"},
                     },
                 )
 
             def config_hng_linea_con_EN_de_la_raiz_anula_lo_incorporado(self):
-                assert self.nocambiado.configuracion()["clave"] == "incorporado"
-                assert self.cambiado.configuracion()["clave"] == "anular"
+                assert self.nocambiado.configuracion()["key"] == "incorporado"
+                assert self.cambiado.configuracion()["key"] == "anular"
 
             def config_en_linea_se_anula_via_fusion_no_reemplazo(self):
                 assert "otraclave" in self.cambiado.configuracion()
@@ -536,7 +536,7 @@ class Collection_:
                 # porque itera sobre .nombres_de_artefactos (transformado) y
                 # luego intenta usar resultado para acceder a __getitem__ 
                 # (sin transformación automática ... porque en todas las demás
-                # situaciones, las claves de estructura de artefacto ya están
+                # situaciones, las keys de estructura de artefacto ya están
                 # transformadas; ¡pero este no fue el caso de del_modulo() con
                 # objetos explícitos 'hng'!)
                 hangar = self._guiones_bajos_anidados()
@@ -635,8 +635,8 @@ class Collection_:
             assert set(self.raiz.configuracion().keys()) == {"biz"}
             # With interior coleccion
             self.raiz.ad_coleccion(interior)
-            claves = set(self.raiz.configuracion("interior.artefacto").keys())
-            assert claves == {"foo", "biz"}
+            keys = set(self.raiz.configuracion("interior.artefacto").keys())
+            assert keys == {"foo", "biz"}
 
         def padres_sobrescriben_a_hijos_en_el_camino(self):
             interior = Coleccion("interior", self.artefacto)
@@ -659,11 +659,11 @@ class Collection_:
 
         def rutas_de_subcolecciones_pueden_tener_puntos(self):
             hoja = Coleccion("hoja", self.artefacto)
-            hoja.configurar({"clave": "hoja-valor"})
+            hoja.configurar({"key": "hoja-valor"})
             medio = Coleccion("medio", hoja)
             raiz = Coleccion("raiz", medio)
             config = raiz.configuracion("medio.hoja.artefacto")
-            assert config == {"clave": "hoja-valor"}
+            assert config == {"key": "hoja-valor"}
 
         def Lrutas_de_subcoleccion_no_válidas_resultan_en_KeyError(self):
             # Directamente no válido
@@ -679,14 +679,14 @@ class Collection_:
             # Un poco duplica cosas anteriores; bah Clave solo almacenada 
             # en hoja
             hoja = Coleccion("hoja", self.artefacto)
-            hoja.configurar({"clave": "hoja-valor"})
+            hoja.configurar({"key": "hoja-valor"})
             medio = Coleccion("medio", hoja)
             raiz = Coleccion("raiz", medio)
             config = raiz.configuracion("medio.hoja.artefacto")
-            assert config == {"clave": "hoja-valor"}
+            assert config == {"key": "hoja-valor"}
             # Clave almacenada en medio + hoja pero no raíz
-            medio.configurar({"clave": "soo"})
-            assert raiz.configuracion("medio.hoja.artefacto") == {"clave": "soo"}
+            medio.configurar({"key": "soo"})
+            assert raiz.configuracion("medio.hoja.artefacto") == {"key": "soo"}
 
     class subcoleccion_desde_ruta:
         def ruta_de_nivel_superior(self):

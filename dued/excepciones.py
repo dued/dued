@@ -99,7 +99,7 @@ class Falla(Exception):
         resto = ""
         if kwargs:
             resto = " " + " ".join(
-                "{}={}".format(clave, valor) for clave, valor in kwargs.items()
+                "{}={}".format(key, valor) for key, valor in kwargs.items()
             )
         return plantilla.format(
             self.__class__.__name__, self.resultado.comando, resto
@@ -259,7 +259,7 @@ class ErrorEnPlatafoma(Exception):
 
 class VarEntAmbigua(Exception):
     """
-    Se genera al cargar claves de config de var-ent tiene un objetivo ambiguo.
+    Se genera al cargar keys de config de var-ent tiene un objetivo ambiguo.
 
     .. versionadded:: 1.0
     """
@@ -318,9 +318,9 @@ def _kwargs_imprimibles(kwargs):
     largos; es necesario truncarlos para que sean útiles.
     """
     imprimible = {}
-    for clave, valor in six.iteritems(kwargs):
+    for key, valor in six.iteritems(kwargs):
         item = valor
-        if clave == "args":
+        if key == "args":
             item = []
             for arg in valor:
                 nuevo_arg = arg
@@ -328,7 +328,7 @@ def _kwargs_imprimibles(kwargs):
                     msj = "<... resto truncado durante la visualización del error ...>"
                     nuevo_arg = arg[:10] + [msj]
                 item.append(nuevo_arg)
-        imprimible[clave] = item
+        imprimible[key] = item
     return imprimible
 
 

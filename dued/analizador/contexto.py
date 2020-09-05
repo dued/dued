@@ -29,7 +29,7 @@ def sort_candidate(arg):
 
 def bandera_clave(x):
     """
-    Obtenga útiles listas-de-entradas clave para clasificar las banderas de 
+    Obtenga útiles listas-de-entradas key para clasificar las banderas de 
     la CLI.
 
     .. versionadded:: 1.0
@@ -113,7 +113,7 @@ class AnalizadorDeContexto(object):
         El Argumento en cuestión se agrega a los siguientes atributos de dict:
 
         * ``args``: acceso "normal", es decir, los nombres dados se exponen
-          directamente como claves.
+          directamente como keys.
         * ``banderas``: acceso "banderalike", es decir, los nombres dados se
           traducen a banderas CLI, p. ej. Se puede acceder a ``"foo"`` a 
           través de ``banderas['--foo']``.
@@ -193,7 +193,7 @@ class AnalizadorDeContexto(object):
         # Obtener arg obj
         if bandera not in self.banderas:
             err = "{!r} ¡No es una bandera válida para este contexto! Las banderas válidas son: {!r}"  # noqa
-            raise ValueError(err.format(bandera, self.banderas.claves()))
+            raise ValueError(err.format(bandera, self.banderas.keys()))
         arg = self.banderas[bandera]
         # Determine el tipo de valor esperado, si lo hubiera
         valor = {str: "CADENA", int: "INT"}.get(arg.tipo)

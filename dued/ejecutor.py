@@ -83,7 +83,7 @@ class Ejecutor(object):
             Este dict puede incluir pre y post-artefactos si alguno fue
             ejecutado. Por ejemplo, en una colección con un artefacto 
             ``fabricar`` que depende de otro artefacto llamado ``setup``, la
-            ejecución de ``fabricar`` resultará en un dicc con dos claves, 
+            ejecución de ``fabricar`` resultará en un dicc con dos keys, 
             una para ``fabricar`` y otra para ``setup``.
 
         .. versionadded:: 1.0

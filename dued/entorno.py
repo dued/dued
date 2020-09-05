@@ -26,7 +26,7 @@ class Entorno(object):
         """
         Devuelve un diccionario anidado que contiene valores de "os.environ".
 
-        Específicamente, valores cuyas claves se asignan a ajustes de 
+        Específicamente, valores cuyas keys se asignan a ajustes de 
         configuración ya conocidos, lo que nos permite realizar un encasillado
         básico.
 
@@ -57,26 +57,26 @@ class Entorno(object):
                 ...
             }
 
-        Devuelve otro diccionario de nuevos pares-de-claves como se indicó 
+        Devuelve otro diccionario de nuevos pares-de-keys como se indicó 
         anteriormente.
         """
         vars_nuevas = {}
         obj = self._obtener_ruta(ruta_clave)
         # Subdict -> recurse
         if (
-            hasattr(obj, "claves")
-            and callable(obj.claves)
+            hasattr(obj, "keys")
+            and callable(obj.keys)
             and hasattr(obj, "__getitem__")
         ):
-            for clave in obj.claves():
+            for key in obj.keys():
                 merged_vars = dict(vars_ent, **vars_nuevas)
-                merged_path = ruta_clave + [clave]
+                merged_path = ruta_clave + [key]
                 gateo = self._gatear(merged_path, merged_vars)
                 # Manejador de conflictos
-                for clave in gateo:
-                    if clave in vars_nuevas:
+                for key in gateo:
+                    if key in vars_nuevas:
                         err = "Encontrado> 1 origen para {}"
-                        raise VarEntAmbigua(err.format(clave))
+                        raise VarEntAmbigua(err.format(key))
                 # Fusionar y continuar
                 vars_nuevas.update(gateo)
         # Otro -> es hoja, no recursiva
@@ -91,18 +91,18 @@ class Entorno(object):
         # Los _obtener son dedesde self._config porque eso es lo que determina las 
         # variables de entorno válidas y/o valores para encasillamiento.
         obj = self._config
-        for clave in ruta_clave:
-            obj = obj[clave]
+        for key in ruta_clave:
+            obj = obj[key]
         return obj
 
     def _setear_ruta(self, ruta_clave, valor):
         # Los sets son para self.datos ya que eso es lo que estamos presentando
         # al objeto de configuración externo y depurando.
         obj = self.datos
-        for clave in ruta_clave[:-1]:
-            if clave not in obj:
-                obj[clave] = {}
-            obj = obj[clave]
+        for key in ruta_clave[:-1]:
+            if key not in obj:
+                obj[key] = {}
+            obj = obj[key]
         viejo = self._obtener_ruta(ruta_clave)
         nuevo_ = self._emitir(viejo, valor)
         obj[ruta_clave[-1]] = nuevo_

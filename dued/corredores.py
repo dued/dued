@@ -74,7 +74,7 @@ class Corredor(object):
                 El `.Contexto` dado a las instancias`.Corredor` **debe** 
                 contener valores de configuración predeterminados para la 
                 clase `.Corredor` en cuestión. Como mínimo, esto significa 
-                valores para cada uno de los argumentos de la palabra clave
+                valores para cada uno de los argumentos de la palabra key
                 predeterminada `.Corredor.correr` como ``echo`` y ``alarma``.
 
         :raises excepciones.ValueError:
@@ -132,7 +132,7 @@ class Corredor(object):
             atributo `~.Corredor.contexto` de esta instancia, específicamente
             en el subárbol ``correr`` de su configuración (por ejemplo,
             ``correr.echo`` proporciona el valor predeterminado para la 
-            palabra clave ``echo`` , etc.). Los valores predeterminados 
+            palabra key ``echo`` , etc.). Los valores predeterminados 
             básicos se describen en la lista de parámetros a continuación.
 
         :param str comando: El comando de shell para ejecutar.
@@ -533,19 +533,19 @@ class Corredor(object):
           objetivo
         """
         opcs = {}
-        for clave, valor in six.iteritems(self.contexto.config.correr):
-            acte = kwargs.pop(clave, None)
-            opcs[clave] = valor if acte is None else acte
+        for key, valor in six.iteritems(self.contexto.config.correr):
+            acte = kwargs.pop(key, None)
+            opcs[key] = valor if acte is None else acte
         # Extraiga el tiempo de espera de ejecución del comando, que almacena
         # la config en otro lugar, pero solo úselo si realmente está config
         # (compatibilidad con versiones anteriores)
         config_timeout = self.contexto.config.tiempo_de_descanso.comando
         opcs["tiempofuera"] = kwargs.pop("tiempofuera", config_timeout)
-        # Manejar claves kwarg inválidas (cualquier cosa que quede en kwargs).
+        # Manejar keys kwarg inválidas (cualquier cosa que quede en kwargs).
         # Actuar como lo haría una función normal, es decir, TypeError
         if kwargs:
-            err = "correr() obtuvo un arg de palabra clave inesperado '{}'"
-            raise TypeError(err.format(list(kwargs.claves())[0]))
+            err = "correr() obtuvo un arg de palabra key inesperado '{}'"
+            raise TypeError(err.format(list(kwargs.keys())[0]))
         # Actualización de banderas asincrónas, rechazadas
         self._asincrono = opcs["asincrono"]
         self._rechazado = opcs["rechazado"]
@@ -1634,8 +1634,8 @@ class Promesa(Resultado):
         # refactorizado) dict de kwargs.
         # TODO: considere usar proxy frente a copiar, pero probablemente
         # espere a que se refactorice
-        for clave, valor in self.corredor.kwargs_resultado.items():
-            setattr(self, clave, valor)
+        for key, valor in self.corredor.kwargs_resultado.items():
+            setattr(self, key, valor)
 
     def join(self):
         """

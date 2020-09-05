@@ -28,7 +28,7 @@ class Coleccion(object):
         * El primer argumento posicional puede ser una cadena, que (si se da) 
           se usa como el nombre predeterminado de la colección cuando se 
           realizan búsquedas de hangar;
-        * Se puede dar como argumento la palabra clave ``cargado_de``, que
+        * Se puede dar como argumento la palabra key ``cargado_de``, que
           establece metadatos que indican la ruta del sistema de archivos desde
           la que se cargó la colección. Esto se utiliza como guía al cargar 
           por proyecto: ref: `archivos de configuración <jerarquía-de-config>`.
@@ -77,7 +77,7 @@ class Coleccion(object):
 
             hng = Coleccion(artefacto_altonivel, Coleccion('docs', doc_artefacto))
 
-        Si se dan ``**kwargs'', las palabras clave se utilizan como 
+        Si se dan ``**kwargs'', las palabras key se utilizan como 
         argumentos de nombre inicial para los valores respectivos::
 
             hng = Coleccion(
@@ -128,8 +128,8 @@ class Coleccion(object):
         return method(obj, nombre=nombre)
 
     def __repr__(self):
-        nombres_de_artefactos = list(self.artefactos.claves())
-        colecciones = ["{}...".format(x) for x in self.colecciones.claves()]
+        nombres_de_artefactos = list(self.artefactos.keys())
+        colecciones = ["{}...".format(x) for x in self.colecciones.keys()]
         return "<Coleccion {!r}: {}>".format(
             self.nombre, ", ".join(sorted(nombres_de_artefactos) + sorted(colecciones))
         )
@@ -471,20 +471,20 @@ class Coleccion(object):
 
     def _transformar_con_lexicon(self, viejo):
         """
-        Toma un Lexicon y apliqua ".transformar" a sus claves y alias.
+        Toma un Lexicon y apliqua ".transformar" a sus keys y alias.
 
         :returns: Un nuevo Lexicon.
         """
         nuevo_ = Lexicon()
-        # Los léxicos exhiben solo sus claves reales en la mayoría de los lugares, 
+        # Los léxicos exhiben solo sus keys reales en la mayoría de los lugares, 
         # por lo que esto solo tomará esos, no los alias.
-        for clave, valor in six.iteritems(viejo):
+        for key, valor in six.iteritems(viejo):
             # Realice una Deepcopy (copia profunda) del valor para que no solo estemos
             # copiando una referencia
-            nuevo_[self.transformar(clave)] = copy.deepcopy(valor)
+            nuevo_[self.transformar(key)] = copy.deepcopy(valor)
         # Copie también todos los alias, que son asignaciones de teclas de cadena_a_cadena
-        for clave, valor in six.iteritems(viejo.alias):
-            nuevo_.alias(from_=self.transformar(clave), to=self.transformar(valor))
+        for key, valor in six.iteritems(viejo.alias):
+            nuevo_.alias(from_=self.transformar(key), to=self.transformar(valor))
         return nuevo_
 
     @property
@@ -494,7 +494,7 @@ class Coleccion(object):
         como un diccionario de un-nivel.
 
         Específicamente, un dic con los nombres de artefacto principal/"real" 
-        como clave y cualquier alias como valor de lista.
+        como key y cualquier alias como valor de lista.
 
         Básicamente, colapsa el árbol hangar en una única colección
         de cadenas de invocación facilmente-escaneable y, por lo tanto, es 
@@ -547,11 +547,11 @@ class Coleccion(object):
         (Recursivamente) fusiona ``opciones`` en la actual `.configuracion`.
 
         Las opciones configuradas de esta manera estarán disponibles para 
-        todos los artefactos. Se recomienda utilizar claves únicas para 
+        todos los artefactos. Se recomienda utilizar keys únicas para 
         evitar posibles conflictos con otras opciones de configuración
 
         Por ejemplo, si estaba configurando un directorio de destino de 
-        compilación de documentos de Sphinx, es mejor usar una clave como
+        compilación de documentos de Sphinx, es mejor usar una key como
          ``'sphinx.objetivo'`` que simplemente ``'objetivo'``.
 
         :param opciones: Objeto que implementa el protocolo del diccionario.
