@@ -417,10 +417,10 @@ class Config(DataProxy):
     reemplazados por subclases.
 
     - ``prefijo``: proporciona el valor predeterminado para 
-      ``prefijo_de_archivo`` (directamente) y ``entorno_prefijo`` (en 
+      ``archivo_prefijo`` (directamente) y ``entorno_prefijo`` (en 
       mayúsculas). Consulte sus  descripciones para obtener más detalles. Su 
       valor por default es ``"dued"``.
-    - ``prefijo_de_archivo``: el archivo de configuración 'basename' 
+    - ``archivo_prefijo``: el archivo de configuración 'basename' 
       predeterminado (aunque no es un literal basename; puede contener partes
       de ruta si se desea) que se agrege a los valores configurados de 
       ``sistema_prefijo``, ``ususario_prefijo``, etc, para llegar a las
@@ -428,7 +428,7 @@ class Config(DataProxy):
 
       Por lo tanto, de forma predeterminada, una ruta de archivo de 
       configuración a nivel del sistema concatena el ``sistema_prefijo`` de
-      ``/etc/`` con el ``prefijo_de_archivo`` de ``dued`` para llegar a rutas 
+      ``/etc/`` con el ``archivo_prefijo`` de ``dued`` para llegar a rutas 
       como ``/etc/dued.json``.
 
       Por defecto es ``None``, lo que significa utilizar el valor de 
@@ -447,7 +447,7 @@ class Config(DataProxy):
     """
 
     prefijo = "dued"
-    prefijo_de_archivo = None
+    archivo_prefijo = None
     entorno_prefijo = None
 
     @staticmethod
@@ -650,7 +650,7 @@ class Config(DataProxy):
         # Como es posible que desee setealo post-inicialización, los 
         # atributos relacionados con el archivo conf del proyecto se
         # inicializan o sobrescriben mediante un método específico.
-        self.setea_ubic_del_py(dir_de_py)
+        self.setea_proyecto_ruta(dir_de_py)
 
         # Entorno variable nombre prefix
         entorno_prefijo = self.entorno_prefijo
@@ -664,7 +664,7 @@ class Config(DataProxy):
         # Como es posible que desee configurarlo post-inicialización, los 
         # atributos relacionados con el archivo de conf en tiempo de 
         # ejecución(acte) se inicializan o sobrescriben con un método específico.
-        self.setea_ruta_del_acte(acte_ruta)
+        self.setea_acte_ruta(acte_ruta)
 
         # anulaciones - nivel de configuración normal más alto. Normalmente
         # se rellena con banderas de línea de comando.
@@ -773,7 +773,7 @@ class Config(DataProxy):
         Carga un archivo de config a nivel-proyecto, si es posible.
 
         Comprueba el valor de ``_proyecto_prefijo`` configurado derivado 
-        de la ruta dada a `setea_ubic_del_py`, que normalmente se establece en
+        de la ruta dada a `setea_proyecto_ruta`, que normalmente se establece en
         el directorio que contiene la colección de artefacto cargada.
 
         Por lo tanto, si se ejecutara la herramienta CLI para una colección de
@@ -790,7 +790,7 @@ class Config(DataProxy):
         """
         self._cargar_archivo(prefijo="proyecto", combinar=combinar)
 
-    def setea_ruta_del_acte(self, ruta):
+    def setea_acte_ruta(self, ruta):
         """
         Establece la ruta del archivo de configuración en tiempo de ejecución.
 
@@ -872,7 +872,7 @@ class Config(DataProxy):
         if combinar:
             self.combinar()
 
-    def setea_ubic_del_py(self, ruta):
+    def setea_proyecto_ruta(self, ruta):
         """
         Setea la ruta del dir donde se puede encontrar un archivo de conf a
         nivel-de-proyecto.
@@ -901,7 +901,7 @@ class Config(DataProxy):
         ubicado = "_{}_ubicado".format(prefijo)
         ruta = "_{}_ruta".format(prefijo)
         datos = "_{}".format(prefijo)
-        arreglo = self.prefijo_de_archivo
+        arreglo = self.archivo_prefijo
         if arreglo is None:
             arreglo = self.prefijo
         # Cortocircuito si la carga parece haber ocurrido ya

@@ -358,7 +358,7 @@ class Programa(object):
         acte_ruta = self.args.config.valor
         if acte_ruta is None:
             acte_ruta = os.environ.get("DUED_CONFIG_TIEMPOEJ", None)
-        self.config.setea_ruta_del_acte(acte_ruta)
+        self.config.setea_acte_ruta(acte_ruta)
         self.config.cargar_acte(combinar=False)
         if combinar:
             self.config.combinar()
@@ -747,7 +747,7 @@ class Programa(object):
             # TODO: ¿vale la pena combinar estos métodos de configuración y
             # carga? Puede requerir más ajustes de cómo se comportan las 
             # cosas en / después de __init__.
-            self.config.setea_ubic_del_py(padre)
+            self.config.setea_proyecto_ruta(padre)
             self.config.cargar_proyecto()
             self.coleccion = Coleccion.del_modulo(
                 modulo,

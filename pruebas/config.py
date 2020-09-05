@@ -57,14 +57,14 @@ class Config_:
                 c.cargar_entorno_shell()
                 assert c.foo == "bar"
 
-        class prefijo_de_archivo:
+        class archivo_prefijo:
             def pordefecto_a_None(self):
-                assert Config().prefijo_de_archivo is None
+                assert Config().archivo_prefijo is None
 
             @patch.object(Config, "_cargar_yaml")
             def informa_nombres_de_archivos_de_config(self, cargar_yaml):
                 class MiConf(Config):
-                    prefijo_de_archivo = "otro"
+                    archivo_prefijo = "otro"
 
                 MiConf(sistema_prefijo="dir/")
                 cargar_yaml.assert_cualquier_llamada("dir/otro.yaml")
@@ -242,7 +242,7 @@ No se encontró ningún atributo o clave de configuración para 'nop'
 
 Claves válidas: ['correr', 'corredores', 'sudo', 'artefactos', 'tiempo_de_descanso']
 
-Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_de_archivo', 'datos_desde', 'global_defaults', '_cargar_archivo_de_conf_base', 'cargar_coleccion', 'cargar_defaults', 'cargar_anulaciones', 'cargar_proyecto', 'cargar_acte', 'cargar_entorno_shell', 'cargar_sistema', 'cargar_usuario', 'combinar', 'pop', 'popitem', 'prefijo', 'setea_ubic_del_py', 'setea_ruta_del_acte', 'setdefault', 'actualizar']
+Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'archivo_prefijo', 'datos_desde', 'global_defaults', '_cargar_archivo_de_conf_base', 'cargar_coleccion', 'cargar_defaults', 'cargar_anulaciones', 'cargar_proyecto', 'cargar_acte', 'cargar_entorno_shell', 'cargar_sistema', 'cargar_usuario', 'combinar', 'pop', 'popitem', 'prefijo', 'setea_proyecto_ruta', 'setea_acte_ruta', 'setdefault', 'actualizar']
 """.strip()  # noqa
                 assert str(e) == esperado
             else:
@@ -600,7 +600,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
         def ubic_del_py_se_puede_establecer_despues_de_init(self):
             c = Config()
             assert "exterior" not in c
-            c.setea_ubic_del_py(join(CONFIGS_RUTA, "yml"))
+            c.setea_proyecto_ruta(join(CONFIGS_RUTA, "yml"))
             c.cargar_proyecto()
             assert c.exterior.interior.hurra == "yml"
 
@@ -642,7 +642,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
             # nuevo comportamiento previsto: aumentar en el momento de la 
             # carga de configuración.
             c = Config()
-            c.setea_ruta_del_acte(join(soporte, "tiene_modulos.py"))
+            c.setea_acte_ruta(join(soporte, "tiene_modulos.py"))
             esperado = r"'os' es un modulo.*dado un artefacto archivo.*error"
             with pytest.raises(MiembroDeConfigNoSeleccionable, match=esperado):
                 c.cargar_acte(combinar=False)
@@ -651,7 +651,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
         def archivos_inexistentes_se_omiten_y_registran(self, mock_debug):
             c = Config()
             c._cargar_yml = Mock(efecto_secundario=IOError(2, "oh nueces"))
-            c.setea_ruta_del_acte("es-un.yml")  # Desencadena el uso de _cargar_yml
+            c.setea_acte_ruta("es-un.yml")  # Desencadena el uso de _cargar_yml
             c.cargar_acte()
             mock_debug.assert_cualquier_llamada("No vi ningún es-un.yml, saltando.")
 
@@ -659,7 +659,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
         def se_generan_IOErrors_de_archivos_no_perdidos(self):
             c = Config()
             c._cargar_yml = Mock(efecto_secundario=IOError(17, "¿uh, qué?"))
-            c.setea_ruta_del_acte("es-un.yml")  # Desencadena el uso de _cargar_yml
+            c.setea_acte_ruta("es-un.yml")  # Desencadena el uso de _cargar_yml
             c.cargar_acte()
 
     class carga_config_a_nivel_de_coleccion:
@@ -998,7 +998,7 @@ Atributos vigentes válidos: ['limpiar', 'clonar', 'entorno_prefijo', 'prefijo_d
             assert c2._ususario_prefijo == c1._ususario_prefijo
             assert c2._proyecto_prefijo == c1._proyecto_prefijo
             assert c2.prefijo == c1.prefijo
-            assert c2.prefijo_de_archivo == c1.prefijo_de_archivo
+            assert c2.archivo_prefijo == c1.archivo_prefijo
             assert c2.entorno_prefijo == c1.entorno_prefijo
             assert c2._ruta_al_acte == c1._ruta_al_acte
 
