@@ -1,32 +1,25 @@
-[![Build Status](https://runbot.odoo.com/runbot/badge/flat/1/master.svg)](https://runbot.odoo.com/runbot)
-[![Tech Doc](https://img.shields.io/badge/master-docs-875A7B.svg?style=flat&colorA=8F8F8F)](https://www.odoo.com/documentation/17.0)
-[![Help](https://img.shields.io/badge/master-help-875A7B.svg?style=flat&colorA=8F8F8F)](https://www.odoo.com/forum/help-1)
-[![Nightly Builds](https://img.shields.io/badge/master-nightly-875A7B.svg?style=flat&colorA=8F8F8F)](https://nightly.odoo.com/)
+<br>
+<div align="center">
+  <a href="https://github.com/dued/dued">
+    <img src="https://raw.githubusercontent.com/dued/co-data/master/static/dued_logo.svg" alt="Dued Logo" height="60">
+  </a>
 
-Odoo
-----
+<h3 align="center">Dispositivo Unificado de Economia Digital</h3>
 
-Odoo is a suite of web based open source business apps.
+  <p align="center">
+    <a href="https://hub.docker.com/r/dued" target="_blank">Docker Hub</a> - 
+    <a href="Apple Notes">Referencia</a>  </p>
 
-The main Odoo Apps include an <a href="https://www.odoo.com/page/crm">Open Source CRM</a>,
-<a href="https://www.odoo.com/app/website">Website Builder</a>,
-<a href="https://www.odoo.com/app/ecommerce">eCommerce</a>,
-<a href="https://www.odoo.com/app/inventory">Warehouse Management</a>,
-<a href="https://www.odoo.com/app/project">Project Management</a>,
-<a href="https://www.odoo.com/app/accounting">Billing &amp; Accounting</a>,
-<a href="https://www.odoo.com/app/point-of-sale-shop">Point of Sale</a>,
-<a href="https://www.odoo.com/app/employees">Human Resources</a>,
-<a href="https://www.odoo.com/app/social-marketing">Marketing</a>,
-<a href="https://www.odoo.com/app/manufacturing">Manufacturing</a>,
-<a href="https://www.odoo.com/">...</a>
+</div>
 
-Odoo Apps can be used as stand-alone applications, but they also integrate seamlessly so you get
-a full-featured <a href="https://www.odoo.com">Open Source ERP</a> when you install several Apps.
-
-Getting started with Odoo
--------------------------
-
-For a standard installation please follow the <a href="https://www.odoo.com/documentation/17.0/administration/install/install.html">Setup instructions</a>
-from the documentation.
-
-To learn the software, we recommend the <a href="https://www.odoo.com/slides">Odoo eLearning</a>, or <a href="https://www.odoo.com/page/scale-up-business-game">Scale-up</a>, the <a href="https://www.odoo.com/page/scale-up-business-game">business game</a>. Developers can start with <a href="https://www.odoo.com/documentation/17.0/developer/howtos.html">the developer tutorials</a>
+El enfoque de Container Registry ha cambiado a Artefactos de compilación esto
+equivale a que en la actualidad lo que denominamos software representa bajo este
+enfoque a un dispositivo que por su naturaleza es económico. Cuando se
+contenedoriza el software o desarrolla un microservicio, al estar en coherencia
+con uno o más estándares como por ejemplo el estándar para despliegues como OCI
+representa un Dispositivo que ademas se entiende Unificado. Los dispositivos
+unificados de economía digital son el nuevo enfoque de los ERP, su impacto se
+asemeja al impacto de las API en la economía desplazarán sus roles con la
+automatización de areas en las que anntes no se usaba en el mundo real. Por esa
+razón se denomina DUED al Dispositivo Unificado de Economía Digital basado en el
+mejor ERP del Mundo Odoo.
